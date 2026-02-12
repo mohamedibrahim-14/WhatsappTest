@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Add Auto Send field to WhatsApp Template Form View -->
+    <record id="view_whatsapp_template_form_auto_send" model="ir.ui.view">
+        <field name="name">whatsapp.template.form.auto.send</field>
+        <field name="model">whatsapp.template</field>
+        <field name="inherit_id" ref="whatsapp.whatsapp_template_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='status']" position="after">
+                <field name="auto_send_on_order" 
+                       widget="boolean_toggle"
+                       string="Auto Send on Website Order"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Add Auto Send field to WhatsApp Template Tree View -->
+    <record id="view_whatsapp_template_tree_auto_send" model="ir.ui.view">
+        <field name="name">whatsapp.template.tree.auto.send</field>
+        <field name="model">whatsapp.template</field>
+        <field name="inherit_id" ref="whatsapp.whatsapp_template_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='status']" position="after">
+                <field name="auto_send_on_order" widget="boolean_toggle"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Add WhatsApp Status to Sale Order Form View -->
+    <record id="view_order_form_whatsapp_status" model="ir.ui.view">
+        <field name="name">sale.order.form.whatsapp.status</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="whatsapp_msg_sent" invisible="1"/>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_send_whatsapp_manual"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-whatsapp"
+                        groups="sales_team.group_sale_salesman"
+                        >
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Send</span>
+                        <span class="o_stat_text">WhatsApp</span>
+                    </div>
+                </button>
+            </xpath>
+        </field>
+    </record>
+    
+</odoo>
