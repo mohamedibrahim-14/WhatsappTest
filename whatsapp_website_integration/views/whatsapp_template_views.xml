@@ -12,6 +12,12 @@
                        widget="boolean_toggle"
                        string="Auto Send on Website Order"/>
             </xpath>
+            <xpath expr="//field[@name='footer_text']" position="after">
+                <field name="trigger_sale_order_confirm"
+                       widget="boolean_toggle"
+                       string="Confirm Order on Tap"
+                       />
+            </xpath>
         </field>
     </record>
     
@@ -28,7 +34,7 @@
     </record>
     
     <!-- Add "Confirm Order on Tap" to template Buttons (Quick Reply) -->
-    <record id="view_whatsapp_template_form_confirm_button" model="ir.ui.view">
+    <!-- <record id="view_whatsapp_template_form_confirm_button" model="ir.ui.view">
         <field name="name">whatsapp.template.form.confirm.button</field>
         <field name="model">whatsapp.template</field>
         <field name="inherit_id" ref="whatsapp.whatsapp_template_view_form"/>
@@ -40,7 +46,7 @@
                        invisible="button_type != 'quick_reply'"/>
             </xpath>
         </field>
-    </record>
+    </record> -->
 
     <!-- Add WhatsApp Status to Sale Order Form View -->
     <record id="view_order_form_whatsapp_status" model="ir.ui.view">
