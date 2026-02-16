@@ -11,7 +11,7 @@ class DiscussChannel(models.Model):
 
     def message_post(self, *, message_type='notification', **kwargs):
         new_msg = super().message_post(message_type=message_type, **kwargs)
-
+        
         if (
             self.channel_type != 'whatsapp'
             or message_type != 'whatsapp_message'
@@ -27,12 +27,15 @@ class DiscussChannel(models.Model):
         if not button_text:
             return new_msg
 
-        # Check if this button text is configured to confirm a sale order
-        confirm_button = self.env['whatsapp.template.button'].sudo().search([
+        # Check if this button text is configured to trigger any sale order action
+        action_button = self.env['whatsapp.template.button'].sudo().search([
+            '|',
             ('trigger_sale_order_confirm', '=', True),
+            ('trigger_sale_order_cancel', '=', True),
             ('name', '=', button_text),
         ], limit=1)
-        if not confirm_button:
+        
+        if not action_button:
             return new_msg
 
         # Channel must be linked to a document (the message we sent from)
@@ -48,23 +51,46 @@ class DiscussChannel(models.Model):
         if not order.exists():
             return new_msg
 
-        if order.state not in ('draft', 'sent'):
-            _logger.info(
-                "WhatsApp confirm button tap for order %s ignored: state is %s",
-                order.name, order.state
-            )
-            return new_msg
+        # Handle CONFIRM action
+        if action_button.trigger_sale_order_confirm:
+            if order.state not in ('draft', 'sent'):
+                _logger.info(
+                    "WhatsApp confirm button tap for order %s ignored: state is %s",
+                    order.name, order.state
+                )
+                return new_msg
+            
+            try:
+                order.action_confirm()
+                _logger.info(
+                    "Sale order %s confirmed via WhatsApp button tap '%s'",
+                    order.name, button_text
+                )
+            except Exception as e:
+                _logger.exception(
+                    "Failed to confirm order %s from WhatsApp button tap: %s",
+                    order.name, e
+                )
 
-        try:
-            order.action_confirm()
-            _logger.info(
-                "Sale order %s confirmed via WhatsApp button tap '%s'",
-                order.name, button_text
-            )
-        except Exception as e:
-            _logger.exception(
-                "Failed to confirm order %s from WhatsApp button tap: %s",
-                order.name, e
-            )
+        # Handle CANCEL action
+        elif action_button.trigger_sale_order_cancel:
+            if order.state in ('cancel', 'done'):
+                _logger.info(
+                    "WhatsApp cancel button tap for order %s ignored: state is %s",
+                    order.name, order.state
+                )
+                return new_msg
+            
+            try:
+                order.action_cancel()
+                _logger.info(
+                    "Sale order %s cancelled via WhatsApp button tap '%s'",
+                    order.name, button_text
+                )
+            except Exception as e:
+                _logger.exception(
+                    "Failed to cancel order %s from WhatsApp button tap: %s",
+                    order.name, e
+                )
 
         return new_msg

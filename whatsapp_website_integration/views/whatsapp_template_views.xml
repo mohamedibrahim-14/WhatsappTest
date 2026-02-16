@@ -39,6 +39,11 @@
                        widget="boolean_toggle"
                        optional="show"
                        invisible="button_type != 'quick_reply'"/>
+                <field name="trigger_sale_order_cancel"
+                       string="Cancel Order on Tap"
+                       widget="boolean_toggle"
+                       optional="show"
+                       invisible="button_type != 'quick_reply'"/>
             </xpath>
         </field>
     </record>
