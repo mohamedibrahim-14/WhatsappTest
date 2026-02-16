@@ -71,7 +71,7 @@ class SaleOrder(models.Model):
                 active_model='sale.order',
                 active_id=self.id,
                 active_ids=[self.id],
-            ).create({
+            ).sudo().create({
                 'res_model': 'sale.order',
                 'wa_template_id': template.id,
                 'phone': phone,
