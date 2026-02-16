@@ -28,7 +28,7 @@ class DiscussChannel(models.Model):
             return new_msg
 
         # Check if this button text is configured to confirm a sale order
-        confirm_button = self.env['whatsapp.template'].sudo().search([
+        confirm_button = self.env['whatsapp.template.button'].sudo().search([
             ('trigger_sale_order_confirm', '=', True),
             ('name', '=', button_text),
         ], limit=1)

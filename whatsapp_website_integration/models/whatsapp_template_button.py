@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models
-from odoo.exceptions import ValidationError
-from odoo import _
 
 
 class WhatsAppTemplateButton(models.Model):
@@ -19,6 +17,8 @@ class WhatsAppTemplateButton(models.Model):
     def _check_trigger_sale_order_confirm_quick_reply(self):
         for btn in self:
             if btn.trigger_sale_order_confirm and btn.button_type != 'quick_reply':
+                from odoo.exceptions import ValidationError
+                from odoo import _
                 raise ValidationError(
                     _('"Confirm Order on Tap" is only supported for Quick Reply buttons.')
                 )
