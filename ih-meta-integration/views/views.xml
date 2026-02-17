@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="pixel_template_inherit_web_layout" name="Pixel Template" inherit_id="web.layout">
+        <xpath expr="//head" position="inside">
+            <!-- Retrieve Facebook Pixel ID -->
+            <t t-set="pix_id" t-value="request.env['ir.config_parameter'].sudo().get_param('pixel_id')"/>
+            <t t-if="pix_id">
+                <script>
+                    // Initialize the Pixel ID from Odoo parameter
+                    var pixelId = "<t t-esc="pix_id" />";
+
+                    // Facebook Pixel Standard Script
+                    (function(f, b, e, v, n, t, s) {
+                        if (f.fbq) return;
+                        n = f.fbq = function() {
+                            n.callMethod ?
+                            n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+                        };
+                        if (!f._fbq) f._fbq = n;
+                        n.push = n;
+                        n.loaded = !0;
+                        n.version = '2.0';
+                        n.queue = [];
+                        t = b.createElement(e);
+                        t.async = !0;
+                        t.src = v;
+                        s = b.getElementsByTagName(e)[0];
+                        s.parentNode.insertBefore(t, s);
+                    })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+
+                    // Initialize Facebook Pixel with the Pixel ID
+                    fbq('init', pixelId);
+                    fbq('track', 'PageView');
+
+                    // Add event listeners to elements with the class 'a-submit'
+                    document.addEventListener('DOMContentLoaded', function() {
+                        document.querySelectorAll('.add-to-cart-button').forEach(function(button) {
+                            button.addEventListener('click', function(event) {
+                               console.log('add to cart page')
+                                // Extract product details dynamically from button attributes
+                                const productId = button.getAttribute('data-product-id') || 'unknown';
+                                const productName = button.getAttribute('data-product-name') || 'unknown';
+                                const productPrice = button.getAttribute('data-product-price') || 0;
+
+                                // Trigger Facebook Pixel AddToCart event
+                                fbq('track', 'AddToCart', {
+                                    content_ids: [productId],
+                                    content_name: productName,
+                                    content_type: 'product',
+                                    value: productPrice,
+                                    currency: 'USD' // Adjust currency based on your store's settings
+                                });
+
+                                console.log(`Facebook Pixel AddToCart event tracked for Product ID: ${productId}`);
+                            });
+                        });
+                    });
+                </script>
+                <noscript>
+                    <img height="1" width="1" style="display:none"
+                         t-att-src="'https://www.facebook.com/tr?id=' + (pix_id or '') + '&amp;ev=PageView&amp;noscript=1'"/>
+                </noscript>
+            </t>
+        </xpath>
+    </template>
+         <template id="pixel_purchase_tracking" inherit_id="website_sale.confirmation" name="Pixel Purchase Tracking">
+        <xpath expr="//div[@id='oe_structure_website_sale_confirmation_2']" position="inside">
+            <t t-set="pix_id" t-value="request.env['ir.config_parameter'].sudo().get_param('pixel_id')"/>
+            <t t-if="pix_id">
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        var pixelId = "<t t-esc="pix_id" />";
+                        var orderTotal = "<t t-esc="order.amount_total" />";
+                        var currency = "<t t-esc="order.currency_id.name" />";
+                        var contentIds = [];
+
+                        <t t-foreach="order.order_line" t-as="line">
+                            contentIds.push('<t t-esc="line.product_id.id"/>');
+                        </t>
+
+                        fbq('track', 'Purchase', {
+                            value: orderTotal,
+                            currency: currency,
+                            content_ids: contentIds,
+                            content_type: 'product'
+                        });
+
+                        console.log('Facebook Pixel Purchase event tracked', contentIds, orderTotal, currency);
+                    });
+                </script>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>
