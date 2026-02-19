@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Meta Pixel Base Template - Injected in all pages -->
+    <template id="meta_pixel_base" name="Meta Pixel Base" inherit_id="web.layout">
+        <xpath expr="//head" position="inside">
+            <t t-set="meta_pixel_enabled" t-value="request.env['ir.config_parameter'].sudo().get_param('meta_capi.pixel_enabled')"/>
+            <t t-set="pix_id" t-value="request.env['ir.config_parameter'].sudo().get_param('meta_capi.pixel_id')"/>
+            <t t-if="meta_pixel_enabled and pix_id">
+                <!-- Meta Pixel Code -->
+                <script>
+                    !function(f,b,e,v,n,t,s)
+                    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                    n.queue=[];t=b.createElement(e);t.async=!0;
+                    t.src=v;s=b.getElementsByTagName(e)[0];
+                    s.parentNode.insertBefore(t,s)}(window, document,'script',
+                    'https://connect.facebook.net/en_US/fbevents.js');
+                    
+                    fbq('init', '<t t-esc="pix_id"/>');
+                    fbq('track', 'PageView');
+                </script>
+                <noscript>
+                    <img height="1" width="1" style="display:none"
+                         t-att-src="'https://www.facebook.com/tr?id=' + pix_id + '&amp;ev=PageView&amp;noscript=1'"/>
+                </noscript>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- AddToCart Event Tracking -->
+    <template id="meta_pixel_add_to_cart" name="Meta Pixel AddToCart" inherit_id="website_sale.product">
+        <xpath expr="//div[@id='product_details']" position="inside">
+            <t t-set="meta_pixel_enabled" t-value="request.env['ir.config_parameter'].sudo().get_param('meta_capi.pixel_enabled')"/>
+            <t t-set="pix_id" t-value="request.env['ir.config_parameter'].sudo().get_param('meta_capi.pixel_id')"/>
+            <t t-if="meta_pixel_enabled and pix_id">
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Track AddToCart on product page
+                        var addToCartBtn = document.querySelector('#add_to_cart');
+                        if (addToCartBtn) {
+                            addToCartBtn.addEventListener('click', function() {
+                                var productId = '<t t-esc="product.id"/>';
+                                var productName = '<t t-esc="product.name"/>';
+                                var productPrice = '<t t-esc="product.list_price"/>';
+                                var currency = '<t t-esc="product.currency_id.name or request.env.company.currency_id.name"/>';
+                                
+                                fbq('track', 'AddToCart', {
+                                    content_ids: [productId],
+                                    content_name: productName,
+                                    content_type: 'product',
+                                    value: parseFloat(productPrice) || 0,
+                                    currency: currency
+                                });
+                            });
+                        }
+                    });
+                </script>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Purchase Event Tracking on Confirmation Page -->
+    <template id="meta_pixel_purchase" name="Meta Pixel Purchase" inherit_id="website_sale.confirmation">
+        <xpath expr="//div[@id='oe_structure_website_sale_confirmation_2']" position="inside">
+            <t t-set="meta_pixel_enabled" t-value="request.env['ir.config_parameter'].sudo().get_param('meta_capi.pixel_enabled')"/>
+            <t t-set="pix_id" t-value="request.env['ir.config_parameter'].sudo().get_param('meta_capi.pixel_id')"/>
+            <t t-if="meta_pixel_enabled and pix_id and order">
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        var orderTotal = parseFloat('<t t-esc="order.amount_total"/>') || 0;
+                        var currency = '<t t-esc="order.currency_id.name"/>';
+                        var contentIds = [];
+                        <t t-foreach="order.order_line" t-as="line">
+                            <t t-if="line.product_id">
+                                contentIds.push('<t t-esc="line.product_id.id"/>');
+                            </t>
+                        </t>
+                        
+                        // Generate event_id for deduplication with CAPI
+                        var eventId = 'purchase_' + '<t t-esc="order.id"/>' + '_' + Date.now();
+                        
+                        fbq('track', 'Purchase', {
+                            content_ids: contentIds,
+                            content_type: 'product',
+                            value: orderTotal,
+                            currency: currency
+                        }, {
+                            eventID: eventId
+                        });
+                    });
+                </script>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- ViewContent Event for Product Pages -->
+    <template id="meta_pixel_view_content" name="Meta Pixel ViewContent" inherit_id="website_sale.product">
+        <xpath expr="//div[@id='product_details']" position="inside">
+            <t t-set="meta_pixel_enabled" t-value="request.env['ir.config_parameter'].sudo().get_param('meta_capi.pixel_enabled')"/>
+            <t t-set="pix_id" t-value="request.env['ir.config_parameter'].sudo().get_param('meta_capi.pixel_id')"/>
+            <t t-if="meta_pixel_enabled and pix_id">
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        var productId = '<t t-esc="product.id"/>';
+                        var productName = '<t t-esc="product.name"/>';
+                        var productPrice = parseFloat('<t t-esc="product.list_price"/>') || 0;
+                        var currency = '<t t-esc="product.currency_id.name or request.env.company.currency_id.name"/>';
+                        
+                        fbq('track', 'ViewContent', {
+                            content_ids: [productId],
+                            content_name: productName,
+                            content_type: 'product',
+                            value: productPrice,
+                            currency: currency
+                        });
+                    });
+                </script>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- InitiateCheckout Event -->
+    <template id="meta_pixel_initiate_checkout" name="Meta Pixel InitiateCheckout" inherit_id="website_sale.checkout_layout">
+        <xpath expr="//div[@id='wrap']" position="inside">
+            <t t-set="meta_pixel_enabled" t-value="request.env['ir.config_parameter'].sudo().get_param('meta_capi.pixel_enabled')"/>
+            <t t-set="pix_id" t-value="request.env['ir.config_parameter'].sudo().get_param('meta_capi.pixel_id')"/>
+            <t t-if="meta_pixel_enabled and pix_id and order">
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        var orderTotal = parseFloat('<t t-esc="order.amount_total"/>') || 0;
+                        var currency = '<t t-esc="order.currency_id.name"/>';
+                        var contentIds = [];
+                        var numItems = 0;
+                        <t t-foreach="order.order_line" t-as="line">
+                            <t t-if="line.product_id">
+                                contentIds.push('<t t-esc="line.product_id.id"/>');
+                                numItems += <t t-esc="line.product_uom_qty"/>;
+                            </t>
+                        </t>
+                        
+                        fbq('track', 'InitiateCheckout', {
+                            content_ids: contentIds,
+                            content_type: 'product',
+                            value: orderTotal,
+                            currency: currency,
+                            num_items: numItems
+                        });
+                    });
+                </script>
+            </t>
+        </xpath>
+    </template>
+</odoo>

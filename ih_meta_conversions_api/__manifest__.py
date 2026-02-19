@@ -1,22 +1,31 @@
 {
-    "name": "Meta Conversions API Integration",
-    "summary": "Send website and e‑commerce events to Meta (Facebook) via the Conversions API.",
+    "name": "Meta Pixel & Conversions API Integration",
+    "summary": "Complete Meta (Facebook) integration with client-side Pixel and server-side Conversions API.",
     "description": """
-Server-side integration with Meta (Facebook) Conversions API.
+Complete Meta (Facebook) integration for Odoo.
 
 Features
 ========
-- Store Meta Pixel ID and Conversions API access token in Website settings.
-- Simple Python API to send arbitrary events to Meta from Odoo (website, sales, etc.).
-- Ready to be called from Server Actions or custom code.
+- Client-side Meta Pixel tracking (PageView, AddToCart, Purchase)
+- Server-side Conversions API for reliable event tracking
+- Event deduplication support between Pixel and CAPI
+- Unified configuration in Website settings
+- Automatic e-commerce event tracking
+
+Benefits
+========
+- Redundant tracking: Pixel + CAPI work together
+- Better data quality with server-side backup
+- iOS 14.5+ privacy changes resilience
     """,
     "author": "Your Company",
     "website": "https://www.yourcompany.com",
     "category": "Website",
-    "version": "17.0.1.0.0",
-    "depends": ["base", "website_sale"],
+    "version": "17.0.2.0.0",
+    "depends": ["base", "website", "website_sale"],
     "data": [
         "views/res_config_settings_views.xml",
+        "views/meta_pixel_templates.xml",
     ],
     "demo": [],
     "installable": True,
