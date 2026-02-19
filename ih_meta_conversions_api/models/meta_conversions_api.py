@@ -42,15 +42,6 @@ class MetaConversionsApi(models.AbstractModel):
         }
 
     @api.model
-    def _generate_event_id(self, prefix="event"):
-        """Generate a unique event ID for deduplication between Pixel and CAPI.
-        
-        :param prefix: Prefix for the event ID (e.g., 'purchase', 'addtocart')
-        :return: Unique event ID string
-        """
-        return f"{prefix}_{self.env.cr.dbname}_{int(time.time() * 1000)}"
-
-    @api.model
     def send_event(
         self,
         event_name,
@@ -60,20 +51,17 @@ class MetaConversionsApi(models.AbstractModel):
         custom_data=None,
         test_event_code=None,
         raise_on_error=False,
-        action_source="website",
     ):
         """Send a single event to Meta Conversions API.
 
         :param event_name: e.g. 'PageView', 'Purchase', 'AddToCart'
         :param event_time: Unix timestamp (int). Defaults to now UTC.
         :param event_id: Optional unique ID for deduplication with Pixel events.
-                         IMPORTANT: Use same event_id in Pixel for proper deduplication.
         :param user_data: Dict with user-related data (email, phone, client IP, UA, etc.).
                           Values should follow Meta's requirements (usually SHA256-hashed).
         :param custom_data: Dict with business data (value, currency, content_ids, etc.).
         :param test_event_code: Optional string from Events Manager (overrides config if set).
         :param raise_on_error: If True, raise UserError on HTTP errors; otherwise, log.
-        :param action_source: Source of the event ('website', 'physical_store', etc.)
         """
         config = self._get_config()
         if not config["enabled"]:
@@ -92,22 +80,19 @@ class MetaConversionsApi(models.AbstractModel):
             _logger.warning(msg)
             return False
 
-        url = f"https://graph.facebook.com/v18.0/{pixel_id}/events"
-        
-        # Build event payload
-        event_payload = {
-            "event_name": event_name,
-            "event_time": int(event_time or time.time()),
-            "action_source": action_source,
-            "user_data": user_data or {},
-            "custom_data": custom_data or {},
+        url = f"https://graph.facebook.com/v17.0/{pixel_id}/events"
+        payload = {
+            "data": [
+                {
+                    "event_name": event_name,
+                    "event_time": int(event_time or time.time()),
+                    "event_id": event_id,
+                    "action_source": "website",
+                    "user_data": user_data or {},
+                    "custom_data": custom_data or {},
+                }
+            ]
         }
-        
-        # Add event_id for deduplication if provided
-        if event_id:
-            event_payload["event_id"] = event_id
-            
-        payload = {"data": [event_payload]}
 
         # Remove empty keys that Meta may reject
         for event in payload["data"]:
