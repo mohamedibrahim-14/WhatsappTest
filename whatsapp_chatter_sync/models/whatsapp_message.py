@@ -1,5 +1,6 @@
 from odoo import api, models
 from odoo.tools import html2plaintext, html_escape
+from markupsafe import Markup
 
 
 class WhatsappMessage(models.Model):
@@ -32,7 +33,7 @@ class WhatsappMessage(models.Model):
                     body = html_escape(text_body).replace("\n", "<br/>")
 
                     record.message_post(
-                        body=f"<b>WhatsApp Reply</b><br/>{body}",
+                        body=Markup(f"<b>WhatsApp Reply</b><br/>{body}"),
                         message_type="comment",
                         subtype_xmlid="mail.mt_note",
                     )
