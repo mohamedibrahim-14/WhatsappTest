@@ -5,15 +5,28 @@ from odoo.tools import html_escape
 class WhatsappMessage(models.Model):
     _inherit = "whatsapp.message"
 
+    def _get_related_record_for_inbound(self):
+        """Resolve the business document linked to an inbound WhatsApp message."""
+        self.ensure_one()
+        mail_message = self.mail_message_id
+        if not mail_message or mail_message.model != "discuss.channel" or not mail_message.res_id:
+            return self.env["ir.model"]
+
+        channel = self.env["discuss.channel"].browse(mail_message.res_id).exists()
+        related_message = channel.whatsapp_mail_message_id
+        if not related_message or not related_message.model or not related_message.res_id:
+            return self.env["ir.model"]
+
+        return self.env[related_message.model].browse(related_message.res_id).exists()
+
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
 
         for msg in records:
             if msg.message_type == "inbound":
-
-                if msg.res_model and msg.res_id:
-                    record = self.env[msg.res_model].browse(msg.res_id)
+                record = msg._get_related_record_for_inbound()
+                if record:
                     body = html_escape(msg.body or "")
 
                     record.message_post(
