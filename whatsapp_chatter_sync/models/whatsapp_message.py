@@ -1,5 +1,5 @@
 from odoo import api, models
-from odoo.tools import html_escape
+from odoo.tools import html2plaintext, html_escape
 
 
 class WhatsappMessage(models.Model):
@@ -27,7 +27,9 @@ class WhatsappMessage(models.Model):
             if msg.message_type == "inbound":
                 record = msg._get_related_record_for_inbound()
                 if record:
-                    body = html_escape(msg.body or "")
+                    # Convert incoming HTML payload to text to avoid showing raw tags in chatter.
+                    text_body = (html2plaintext(msg.body or "") or "").strip()
+                    body = html_escape(text_body).replace("\n", "<br/>")
 
                     record.message_post(
                         body=f"<b>WhatsApp Reply</b><br/>{body}",
