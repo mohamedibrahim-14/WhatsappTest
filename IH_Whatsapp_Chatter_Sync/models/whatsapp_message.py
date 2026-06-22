@@ -8,6 +8,7 @@ class WhatsappMessage(models.Model):
 
     def _get_related_record_for_inbound(self):
         """Resolve the business document linked to an inbound WhatsApp message."""
+        """" author: Mohamed Ebrahem """
         self.ensure_one()
         mail_message = self.mail_message_id
         if not mail_message or mail_message.model != "discuss.channel" or not mail_message.res_id:
@@ -22,6 +23,7 @@ class WhatsappMessage(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        """" author: Mohamed Ebrahem """
         records = super().create(vals_list)
 
         for msg in records:
