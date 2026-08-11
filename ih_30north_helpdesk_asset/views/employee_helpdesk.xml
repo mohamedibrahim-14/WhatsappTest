@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!--    <record id="hr_employee_helpdesk_filter_view" model="ir.ui.view">-->
+<!--        <field name="name">hr.employee.helpdesk.filter.form</field>-->
+<!--        <field name="model">hr.employee</field>-->
+<!--        <field name="inherit_id" ref="hr.view_employee_form"/>-->
+<!--        <field name="arch" type="xml">-->
+
+<!--            &lt;!&ndash; Add inside Work Information tab, after the department field &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='coach_id']" position="after">-->
+<!--                <separator string="Helpdesk Team Assignment"/>-->
+<!--                <field name="filter_it"/>-->
+<!--                <field name="filter_maintenance"/>-->
+<!--            </xpath>-->
+
+<!--        </field>-->
+<!--    </record>-->
+</odoo>
+

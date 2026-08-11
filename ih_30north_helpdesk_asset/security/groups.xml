@@ -1,0 +1,43 @@
+<odoo>
+
+    <record id="category_for_helpdesk_team" model="ir.module.category">
+        <field name="name">category for helpdesk team</field>
+        <field name="sequence" eval="1"/>
+    </record>
+
+    <record id="approval_for_helpdesk_team" model="ir.module.category">
+        <field name="name">Approval Cycle for helpdesk team</field>
+        <field name="sequence" eval="1"/>
+    </record>
+
+    <record id="adding_group_it" model="res.groups">
+        <field name="name">it</field>
+        <field name="category_id" ref="category_for_helpdesk_team"/>
+    </record>
+
+    <record id="adding_group_maintenance" model="res.groups">
+        <field name="name">maintenance</field>
+        <field name="category_id" ref="category_for_helpdesk_team"/>
+    </record>
+
+    <record id="approval_cycle_branch_manager" model="res.groups">
+        <field name="name">Branch Manager</field>
+        <field name="category_id" ref="approval_for_helpdesk_team"/>
+    </record>
+
+    <record id="approval_cycle_maintenance_manager" model="res.groups">
+        <field name="name">Maintenance Manager</field>
+        <field name="category_id" ref="approval_for_helpdesk_team"/>
+    </record>
+
+    <record id="approval_cycle_technician_confirm" model="res.groups">
+        <field name="name">Technician Confirm</field>
+        <field name="category_id" ref="approval_for_helpdesk_team"/>
+    </record>
+
+    <record id="approval_cycle_warehouse" model="res.groups">
+    <field name="name">Warehouse Manager</field>
+        <field name="category_id" ref="approval_for_helpdesk_team"/>
+    </record>
+
+</odoo>

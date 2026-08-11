@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="helpdesk_stage_view_form_inherit" model="ir.ui.view">
+        <field name="name">helpdesk.stage.form.inherit</field>
+        <field name="model">helpdesk.stage</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_stage_view_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='sequence']" position="after">
+                <separator string="Stage Type Flags"/>
+                <field name="is_draft"/>
+                <field name="is_submit"/>
+                <field name="is_assigned"/>
+                <field name="is_checking"/>
+                <field name="is_maintenance"/>
+                <field name="is_waiting_warehouse_availability"/>
+                <field name="is_sp_installed"/>
+                <field name="is_waiting_done"/>
+                <field name="is_done"/>
+                <field name="is_cancel"/>
+            </xpath>
+
+           <xpath expr="//field[@name='legend_done']/.." position="after">
+            <div class="row g-0 ms-1" colspan="2">
+                <label for="legend_closed" string=" " class="o_status o_status_black  mt4"
+                    title="Ticket is closed."
+                    aria-label="Ticket is closed." role="img"/>
+                <div class="col-11 ps-2">
+                    <field name="legend_closed" />
+                </div>
+            </div>
+        </xpath>
+
+        </field>
+    </record>
+
+
+
+</odoo>

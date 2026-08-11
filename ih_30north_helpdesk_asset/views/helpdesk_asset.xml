@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="ir_cron_auto_block_tickets" model="ir.cron">
+            <field name="name">Helpdesk: Auto Block Tickets After 15 Minutes</field>
+            <field name="model_id" ref="helpdesk.model_helpdesk_ticket"/>
+            <field name="state">code</field>
+            <field name="code">model._auto_block_old_tickets()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="active">1</field>
+            <field name="priority">5</field>
+        </record>
+
+
+    <record id="asset_helpdesk_relation_view" model="ir.ui.view">
+        <field name="name">asset helpdesk relation view</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_ticket_view_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='tag_ids']" position="after">
+                <field name="asset_location_helpdesk"/>
+                <field name="asset_category_helpdesk_domain" invisible="1"/>
+                <field name="asset_category_helpdesk" domain="asset_category_helpdesk_domain"/>
+                <field name="assets_helpdesk_domain" invisible="1"/>
+                <field name="assets_helpdesk" domain="assets_helpdesk_domain"/>
+                <field name="asset_tags_helpdesk"  widget="many2many_tags" options="{'color_field': 'color'}"/>
+            </xpath>
+
+
+
+            <xpath expr="//field[@name='stage_id']" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='user_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='priority']" position="attributes">
+                <attribute name="invisible">is_stage_draft</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='legend_done']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='email_cc']" position="after">
+                <field name="is_helpdesk_team_member" invisible="1"/>
+                <field name="assignment_team"
+                       required="not is_stage_draft"
+                       invisible="is_stage_draft"/>
+                <field name="employee_helpdesk_domain" invisible="1"/>
+                <field name="employee_helpdesk"
+                       domain="employee_helpdesk_domain"
+                       invisible="is_stage_draft or not assignment_team"/>
+                <field name="spare_parts" invisible="not is_stage_checking"/>
+                <field name="spare_name" invisible="spare_parts==False"/>
+<!--                <field name="checking" invisible="not is_stage_checking" />-->
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page string="Attachments">
+                    <field name="attachment_ids" widget="many2many_binary"/>
+                </page>
+            </xpath>
+
+            <xpath expr="//field[@name='kanban_state']" position="after">
+                <field name="legend_closed" />
+                <field name="legend_done_closed" invisible="1"/>
+            </xpath>
+
+            <xpath expr="//header" position="inside">
+
+               <!-- Draft → Manager Approve -->
+                 <button name="action_submit" string="Submit"
+                        type="object" class="btn-primary"
+                        invisible="not is_stage_draft"
+                        groups="ih_30north_helpdesk_asset.approval_cycle_branch_manager"/>
+
+
+                <button name="action_assign" string="Assign"
+                        type="object" class="btn-primary"
+                        invisible="not is_stage_submit"
+                        groups="ih_30north_helpdesk_asset.approval_cycle_maintenance_manager"/>
+
+                <button name="action_checking" string="Confirm"
+                        type="object" class="btn-primary"
+                        invisible="not is_stage_assigned"
+                        groups="ih_30north_helpdesk_asset.approval_cycle_technician_confirm"/>
+
+                <button name="action_maintenance_approve" string="Maintenance Approval"
+                        type="object" class="btn-primary"
+                        invisible="not is_stage_checking"
+                        groups="ih_30north_helpdesk_asset.approval_cycle_maintenance_manager"/>
+
+                <button name="action_sp_installed"
+                        string="SP Installed Approved"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="not is_stage_sp_installed"
+                        groups="ih_30north_helpdesk_asset.approval_cycle_maintenance_manager"/>
+
+                <button name="action_done"
+                        string="Done"
+                        type="object"
+                        class="btn-primary"
+                        invisible="not is_stage_waiting_done"
+                        groups="ih_30north_helpdesk_asset.approval_cycle_branch_manager"/>
+
+
+                <button name="action_reset_draft" string="Reset to Draft"
+                        type="object"
+                        invisible="not is_stage_cancel"/>
+
+                <button name="action_warehouse_received" string="Spare Parts Available"
+                        type="object" class="btn-primary"
+                        invisible="not is_stage_waiting_warehouse_availability"
+                        groups="ih_30north_helpdesk_asset.approval_cycle_warehouse"/>
+
+                <button name="action_cancel" string="Cancel"
+                        type="object" class="btn-secondary"
+                        invisible="is_stage_cancel"
+                        groups="ih_30north_helpdesk_asset.approval_cycle_branch_manager"/>
+
+                <!-- computed flags - hidden -->
+                <field name="is_stage_draft"       invisible="1"/>
+                <field name="is_stage_submit"      invisible="1"/>
+                <field name="is_stage_assigned"    invisible="1"/>
+                <field name="is_stage_checking"    invisible="1"/>
+                <field name="is_stage_maintenance" invisible="1"/>
+                <field name="is_stage_done"        invisible="1"/>
+                <field name="is_stage_waiting_done" invisible="1"/>
+                <field name="is_stage_cancel"      invisible="1"/>
+                <field name="is_stage_waiting_warehouse_availability" invisible="1"/>
+                <field name="is_stage_sp_installed" invisible="1"/>
+            </xpath>
+
+
+
+        </field>
+    </record>
+
+
+
+
+
+</odoo>

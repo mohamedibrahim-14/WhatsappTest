@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Body used by every step of the asset maintenance cycle.
+        Rendered through message_post_with_source(), which supplies `object`
+        (the helpdesk.ticket); the rest comes from render_values.
+
+        Styles are inline and the layout is table-based on purpose: Outlook and
+        most webmail clients strip <style> blocks and ignore flexbox/grid.
+    -->
+    <template id="mail_notification_cycle_step">
+        <div style="margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;color:#374151;font-size:14px;line-height:1.5;">
+
+            <p style="margin:0 0 16px 0;">
+                Hello,
+            </p>
+
+            <p style="margin:0 0 16px 0;">
+                <t t-out="note or summary"/>
+            </p>
+
+            <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                   style="border-collapse:collapse;border:1px solid #e5e7eb;border-radius:6px;margin:0 0 20px 0;">
+                <tr>
+                    <td colspan="2"
+                        style="background-color:#f9fafb;padding:10px 14px;border-bottom:1px solid #e5e7eb;
+                               font-weight:bold;font-size:15px;color:#111827;">
+                        <t t-out="object.name or 'Ticket'"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:8px 14px;color:#6b7280;width:38%;border-bottom:1px solid #f3f4f6;">Stage</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #f3f4f6;">
+                        <t t-out="object.stage_id.display_name or '-'"/>
+                    </td>
+                </tr>
+                <tr t-if="object.assignment_team">
+                    <td style="padding:8px 14px;color:#6b7280;border-bottom:1px solid #f3f4f6;">Team</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #f3f4f6;">
+                        <t t-out="object.assignment_team.display_name"/>
+                    </td>
+                </tr>
+                <tr t-if="object.employee_helpdesk">
+                    <td style="padding:8px 14px;color:#6b7280;border-bottom:1px solid #f3f4f6;">Technician</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #f3f4f6;">
+                        <t t-out="object.employee_helpdesk.display_name"/>
+                    </td>
+                </tr>
+                <tr t-if="object.assets_helpdesk">
+                    <td style="padding:8px 14px;color:#6b7280;border-bottom:1px solid #f3f4f6;">Asset</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #f3f4f6;">
+                        <t t-out="object.assets_helpdesk.display_name"/>
+                    </td>
+                </tr>
+                <tr t-if="object.asset_location_helpdesk">
+                    <td style="padding:8px 14px;color:#6b7280;border-bottom:1px solid #f3f4f6;">Location</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #f3f4f6;">
+                        <t t-out="object.asset_location_helpdesk.display_name"/>
+                    </td>
+                </tr>
+                <tr t-if="object.spare_parts">
+                    <td style="padding:8px 14px;color:#6b7280;border-bottom:1px solid #f3f4f6;">Spare Part</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #f3f4f6;">
+                        <t t-out="object.spare_name or '-'"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:8px 14px;color:#6b7280;">Requested by</td>
+                    <td style="padding:8px 14px;">
+                        <t t-out="object.create_uid.name or '-'"/>
+                    </td>
+                </tr>
+            </table>
+
+            <p style="margin:0;">
+                Kindly review and take the needed action.
+            </p>
+        </div>
+    </template>
+
+</odoo>

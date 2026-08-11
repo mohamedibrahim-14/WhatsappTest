@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="helpdesk_assignment_team_view_tree" model="ir.ui.view">
+        <field name="name">helpdesk.assignment.team.tree</field>
+        <field name="model">helpdesk.assignment.team</field>
+        <field name="arch" type="xml">
+            <tree string="Assignment Teams">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="employee_count" string="Employees"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="helpdesk_assignment_team_view_form" model="ir.ui.view">
+        <field name="name">helpdesk.assignment.team.form</field>
+        <field name="model">helpdesk.assignment.team</field>
+        <field name="arch" type="xml">
+            <form string="Assignment Team">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Maintenance"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="sequence"/>
+                        <field name="active" invisible="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Employees">
+                            <field name="employee_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="work_email"/>
+                                    <field name="job_title"/>
+                                    <field name="user_id"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="helpdesk_assignment_team_view_search" model="ir.ui.view">
+        <field name="name">helpdesk.assignment.team.search</field>
+        <field name="model">helpdesk.assignment.team</field>
+        <field name="arch" type="xml">
+            <search string="Assignment Teams">
+                <field name="name"/>
+                <field name="employee_ids"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="helpdesk_assignment_team_action" model="ir.actions.act_window">
+        <field name="name">Assignment Teams</field>
+        <field name="res_model">helpdesk.assignment.team</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create an assignment team
+            </p>
+            <p>
+                Group the employees who handle tickets, then pick the team on a
+                ticket to assign and notify them.
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="helpdesk_assignment_team_menu"
+        name="Technician Teams"
+        parent="helpdesk.helpdesk_menu_config"
+        action="helpdesk_assignment_team_action"
+        sequence="1"
+        groups="helpdesk.group_helpdesk_manager"/>
+
+</odoo>

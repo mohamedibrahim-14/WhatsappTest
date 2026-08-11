@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="helpdesk_team_view_form_inherit" model="ir.ui.view">
+        <field name="name">helpdesk.team.form.inherit.asset</field>
+        <field name="model">helpdesk.team</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_team_view_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='description']" position="after">
+                <group string="Asset Maintenance Cycle">
+                    <field name="warehouse_user_ids"
+                           widget="many2many_avatar_user"
+                           options="{'no_create': True}"
+                           placeholder="Users who confirm spare parts availability"/>
+                </group>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>
