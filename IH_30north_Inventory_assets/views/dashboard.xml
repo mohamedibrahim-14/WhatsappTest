@@ -1,0 +1,38 @@
+<odoo>
+    <!-- Kanban View -->
+<record id="view_custom_inventory_picking_kanban" model="ir.ui.view">
+    <field name="name">custom.inventory.picking.kanban</field>
+    <field name="model">custom.inventory.picking</field>
+    <field name="arch" type="xml">
+        <kanban  class="o_kanban_small_column" create="false">
+            <templates>
+                <t t-name="kanban-box">
+                    <div class="oe_kanban_global_click">
+                        <div class="o_kanban_primary_left">
+                            <strong><field name="name"/></strong>
+                        </div>
+                        <div>Type: <field name="operation_type"/></div>
+                        <div>Source: <field name="default_source_location_id"/></div>
+                        <div>Code: <field name="sequence_preview"/></div>
+                        <div t-if="record.notes.value">
+                            <span class="text-muted">Notes: <field name="notes"/></span>
+                        </div>
+
+                        <!-- Kanban footer -->
+<div class="mt8 text-end">
+    <a type="object"
+       name="get_action_related_operations"
+       class="btn btn-primary btn-sm float-end">
+        View Related Operations
+    </a>
+</div>
+                    </div>
+                </t>
+            </templates>
+        </kanban>
+    </field>
+</record>
+
+
+
+</odoo>

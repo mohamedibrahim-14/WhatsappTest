@@ -1,0 +1,32 @@
+<odoo>
+
+    <record id="view_receive_asset_wizard_form" model="ir.ui.view">
+    <field name="name">wizard.receive.asset.form</field>
+    <field name="model">wizard.receive.asset</field>
+    <field name="arch" type="xml">
+        <form string="Receive Asset">
+            <group>
+                <field name="category_name" readonly="1"/>
+                <field name="asset_type" readonly="1"/>
+                <field name="asset_name"/>
+                <field name="location_id"/>
+                <field name="serial_number"/>
+                <field name="default_code"/>
+                <field name="asset_status"/>
+
+            </group>
+            <footer>
+                <button string="Confirm" type="object" name="action_confirm_create_asset" class="btn-primary"/>
+                <button string="Cancel" special="cancel"/>
+            </footer>
+        </form>
+    </field>
+</record>
+
+      <record id="action_receive_asset_wizard" model="ir.actions.act_window">
+        <field name="name">Receive Asset</field>
+        <field name="res_model">wizard.receive.asset</field>
+        <field name="view_mode">form</field>
+
+    </record>
+</odoo>

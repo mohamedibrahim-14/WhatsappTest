@@ -1,0 +1,77 @@
+<odoo>
+
+<record id="view_unavailable_inventory_tree" model="ir.ui.view">
+    <field name="name">unavailable.inventory.tree</field>
+    <field name="model">custom.inventory.unavailable</field>
+    <field name="arch" type="xml">
+        <tree string="Unavailable Requests">
+            <field name="request_id"/>
+            <field name="requested_by"/>
+            <field name="asset_type"/>
+            <field name="requested_location_id"/>
+            <field name="date"/>
+        <field name="state" widget="badge" decoration-info="state == 'pending'" decoration-success="state == 'received'" decoration-danger="state == 'cancelled'"  decoration-primary="state == 'purchased'" />
+
+        </tree>
+    </field>
+</record>
+
+
+
+      <record id="view_unavailable_inventory_form" model="ir.ui.view">
+        <field name="name">custom.inventory.unavailable.form</field>
+        <field name="model">custom.inventory.unavailable</field>
+        <field name="arch" type="xml">
+            <form string="Unavailable Inventory Request">
+                 <header>
+                     <button name="action_mark_pending"
+                        type="object"
+                        string="Reset to Pending"
+                        class="btn-primary"
+                        invisible = "state in ['pending','received']"/>
+
+                <button name="action_mark_purchased"
+                        type="object"
+                        string="Purchased"
+                        class="btn-primary"
+                        invisible = "state in ['purchased','received']"/>
+
+                <button name="action_open_receive_wizard"
+        type="object"
+        string="Received"
+        class="btn-primary"
+        invisible="state != 'purchased'"/>
+
+                <button name="action_cancel"
+                        type="object"
+                        string="Cancel"
+                        class="btn-secondary"
+                        invisible = "state == 'cancelled'"/>
+
+                <field name="state" widget="statusbar"
+                       statusbar_visible="pending,purchased,received,cancelled"/>
+            </header>
+
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="request_id" readonly="1"/>
+<!--                            <field name="product_id"/>-->
+                            <field name="asset_type"/>
+                            <field name="unavailable_quantity"/>
+                        </group>
+                        <group>
+                            <field name="requested_location_id"/>
+                            <field name="requested_by"/>
+                            <field name="date"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="note"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

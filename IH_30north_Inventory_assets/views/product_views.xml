@@ -1,0 +1,239 @@
+<odoo>
+    <record id="action_update_assets_qr" model="ir.actions.server">
+    <field name="name">Update Assets QR Color</field>
+    <field name="model_id" ref="model_custom_inventory_product"/>
+    <field name="binding_model_id" ref="model_custom_inventory_product"/>
+    <field name="binding_view_types">tree,form</field>
+    <field name="state">code</field>
+    <field name="code">
+        for record in records:
+            record.generate_qr()
+    </field>
+</record>
+
+     <record id="action_generate_missing_qr_server" model="ir.actions.server">
+        <field name="name">Generate Missing QR Codes</field>
+        <field name="model_id" ref="model_custom_inventory_product"/>
+        <field name="binding_model_id" ref="model_custom_inventory_product"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+            action = env['custom.inventory.product'].action_generate_qr_single_record()
+        </field>
+    </record>
+
+<record id="view_custom_product_tree_assets" model="ir.ui.view">
+    <field name="name">custom.inventory.product.tree</field>
+    <field name="model">custom.inventory.product</field>
+    <field name="arch" type="xml">
+        <tree>
+            <field name="default_code"/>
+            <field name="track_serial"/>
+            <field name="name"/>
+            <field name="asset_name"/>
+            <field name="category_id"/>
+            <field name="moved_by"/>
+            <field name="asset_status"/>
+            <field name="location_id"/>
+
+        </tree>
+    </field>
+</record>
+
+<record id="view_custom_product_form_up" model="ir.ui.view">
+    <field name="name">custom.inventory.product.form</field>
+    <field name="model">custom.inventory.product</field>
+    <field name="arch" type="xml">
+        <form>
+            <sheet>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_view_asset_movements"
+                            type="object"
+                            string="Movements"
+                            icon="fa-random"
+                            class="oe_stat_button">
+                        <field name="move_count" widget="statinfo" string="Movements"/>
+                    </button>
+                </div>
+
+                <group>
+                    <group>
+                        <field name="parent_category_id"/>
+                        <field name="category_id" domain="[('parent_category_name','=',parent_category_id)]"/>
+                        <field name="asset_name"  domain="[('category_name', '=', category_id)]"/>
+                        <field name="name"/>
+                        <field name="acquisition_date"/>
+                        <field name="moved_by"/>
+                        <field name="default_code"/>
+                        <label for="track_serial"/>
+   <div class="o_row" colspan="2">
+    <field name="track_serial"/>
+    <button name="action_generate_missing_serial"
+            type="object"
+            string="Generate"
+            class="btn btn-link"
+            invisible="track_serial"/>
+</div>
+<field name="asset_status"/>
+                    </group>
+                    <group>
+                        <field name="asset_tags" widget="many2many_tags" options="{'color_field': 'color'}" />
+                        <field name="asset_value_ad"/>
+                        <field name="description"/>
+                        <field name="location_id"/>
+                        <field name="asset_id" domain="[('state', '!=', 'model')]"/>
+                        <field name="qr_code" widget="image" class="oe_avatar"/>
+                        <field name="qr_url" readonly="1" widget="url"/>
+                        <button name="action_regenerate_qr"
+                                type="object"
+                                string="Regenerate QR"
+                                icon="fa-refresh"
+                                class="btn btn-link"/>
+                    </group>
+                </group>
+
+                <notebook>
+                <page string="Movement">
+                    <field name="move_history_ids" readonly="1">
+                        <tree>
+                            <field name="product_id"   readonly="1"/>
+                            <field name="track_serial" readonly="1"/>
+                            <field name="location_id"  readonly="1"/>
+                            <field name="location_dest_id" readonly="1"/>
+                            <field name="moved_by"   readonly="1"/>
+                            <field name="move_date"  readonly="1"/>
+                        </tree>
+                    </field>
+                  </page>
+                <page string="Maintenance">
+                         <field name="maintenance_ids" readonly="1">
+                             <tree>
+                                 <field name="name"/>
+                                 <field name="location_id"/>
+                                 <field name="requested_by"/>
+                                 <field name="priority"/>
+                                 <field name="maintenance_responsible"/>
+                                 <field name="state"/>
+                                 <field name="cost" sum="Total Cost"/>
+                             </tree>
+                         </field>
+                     </page>
+
+
+
+            </notebook>
+            </sheet>
+        </form>
+    </field>
+</record>
+
+    <record id="view_custom_product_search_assets" model="ir.ui.view">
+    <field name="name">custom.inventory.product.search</field>
+    <field name="model">custom.inventory.product</field>
+    <field name="arch" type="xml">
+        <search string="Search Assets">
+
+            <!-- Text / Many2one Search -->
+            <field name="default_code"/>
+            <field name="track_serial"/>
+            <field name="name"/>
+            <field name="asset_name"/>
+            <field name="parent_category_id"/>
+            <field name="category_id"/>
+            <field name="moved_by"/>
+            <field name="location_id"/>
+            <field name="asset_id"/>
+            <field name="asset_tags"/>
+
+            <!-- Status -->
+            <field name="asset_status"/>
+
+            <!-- Date -->
+            <field name="acquisition_date"/>
+
+            <separator/>
+
+            <!-- Group By -->
+            <group expand="0" string="Group By">
+
+                <filter
+                    name="group_by_parent_category"
+                    string="Parent Category"
+                    context="{'group_by': 'parent_category_id'}"/>
+
+                <filter
+                    name="group_by_category"
+                    string="Category"
+                    context="{'group_by': 'category_id'}"/>
+
+                <filter
+                    name="group_by_status"
+                    string="Asset Status"
+                    context="{'group_by': 'asset_status'}"/>
+
+                <filter
+                    name="group_by_location"
+                    string="Location"
+                    context="{'group_by': 'location_id'}"/>
+
+                <filter
+                    name="group_by_moved_by"
+                    string="Moved By"
+                    context="{'group_by': 'moved_by'}"/>
+
+                <filter
+                    name="group_by_acquisition_date"
+                    string="Acquisition Date"
+                    context="{'group_by': 'acquisition_date'}"/>
+
+            </group>
+
+            <separator/>
+
+            <!-- Useful Filters -->
+
+            <filter
+                name="with_serial"
+                string="With Serial"
+                domain="[('track_serial', '!=', False)]"/>
+
+            <filter
+                name="without_serial"
+                string="Without Serial"
+                domain="[('track_serial', '=', False)]"/>
+
+            <filter
+                name="with_location"
+                string="With Location"
+                domain="[('location_id', '!=', False)]"/>
+
+            <filter
+                name="without_location"
+                string="Without Location"
+                domain="[('location_id', '=', False)]"/>
+
+            <filter
+                name="with_qr"
+                string="With QR Code"
+                domain="[('qr_code', '!=', False)]"/>
+
+            <filter
+                name="without_qr"
+                string="Without QR Code"
+                domain="[('qr_code', '=', False)]"/>
+
+        </search>
+    </field>
+</record>
+
+<!-- Bulk regeneration: select assets in the list view, then Actions > Regenerate QR -->
+<record id="action_regenerate_asset_qr" model="ir.actions.server">
+    <field name="name">Regenerate QR</field>
+    <field name="model_id" ref="model_custom_inventory_product"/>
+    <field name="binding_model_id" ref="model_custom_inventory_product"/>
+    <field name="binding_view_types">list,form</field>
+    <field name="state">code</field>
+    <field name="code">action = records.action_regenerate_qr()</field>
+</record>
+
+</odoo>

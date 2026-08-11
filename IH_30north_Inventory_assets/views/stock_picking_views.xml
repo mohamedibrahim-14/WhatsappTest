@@ -1,0 +1,50 @@
+<odoo>
+
+    <record id="operation_type_transfer" model="custom.inventory.picking">
+    <field name="name">Transfer Operation</field>
+    <field name="operation_type">transfer</field>
+    <field name="active">1</field>
+</record>
+    <record id="view_custom_picking_tree" model="ir.ui.view">
+        <field name="name">custom.inventory.picking.tree</field>
+        <field name="model">custom.inventory.picking</field>
+        <field name="arch" type="xml">
+            <tree>
+                    <field name="sequence_preview"/>
+                    <field name="name"/>
+                    <field name="default_source_location_id"/>
+                    <field name="active"/>
+                    <field name="operation_type"/>
+
+
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_custom_picking_form" model="ir.ui.view">
+        <field name="name">custom.inventory.picking.form</field>
+        <field name="model">custom.inventory.picking</field>
+        <field name="arch" type="xml">
+            <form>
+             <sheet>
+
+                 <group>
+                    <group>
+
+                        <field name="name"/>
+                        <field name="operation_type"/>
+                        <field name="default_source_location_id"/>
+                        <field name="active"/>
+                    </group>
+                     <group>
+                           <field name="sequence_code" invisible="1"/>
+                           <field name="sequence_preview"/>
+                         <field name="notes"/>
+                     </group>
+                </group>
+
+            </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

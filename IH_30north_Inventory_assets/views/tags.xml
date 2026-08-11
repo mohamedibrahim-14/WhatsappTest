@@ -1,0 +1,27 @@
+<odoo>
+    <record id="view_ih_asset_tag_tree" model="ir.ui.view">
+        <field name="name">ih.asset.tag.tree</field>
+        <field name="model">ih.asset.tag</field>
+        <field name="arch" type="xml">
+            <tree string="Asset Tags">
+                <field name="name"/>
+                <field name="color"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_ih_asset_tag_form" model="ir.ui.view">
+        <field name="name">ih.asset.tag.form</field>
+        <field name="model">ih.asset.tag</field>
+        <field name="arch" type="xml">
+            <form string="Asset Tag">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="color" widget="color_picker"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

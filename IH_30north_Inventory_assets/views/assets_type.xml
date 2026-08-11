@@ -1,0 +1,60 @@
+<odoo>
+
+<record id="view_assets_type_form" model="ir.ui.view">
+    <field name="name">custom.assets.type.form</field>
+    <field name="model">assets.type</field>
+    <field name="arch" type="xml">
+        <form string="Product Category">
+            <sheet>
+                <group>
+                    <field name="name"/>
+                    <field name="category_name"/>
+                </group>
+            </sheet>
+        </form>
+    </field>
+</record>
+
+<record id="view_assets_type_tree" model="ir.ui.view">
+    <field name="name">custom.assets.type.tree</field>
+    <field name="model">assets.type</field>
+    <field name="arch" type="xml">
+        <tree>
+             <field name="name"/>
+             <field name="category_name"/>
+        </tree>
+    </field>
+</record>
+
+
+    <record id="view_assets_type_search" model="ir.ui.view">
+        <field name="name">custom.assets.type.search</field>
+        <field name="model">assets.type</field>
+        <field name="arch" type="xml">
+            <search string="Asset Types">
+
+                <!-- Search by Asset Type Name -->
+                <field name="name"/>
+
+                <!-- Search by Category -->
+                <field name="category_name"/>
+
+                <separator/>
+
+                <!-- Group By Category -->
+                <group expand="0" string="Group By">
+                    <filter
+                        name="group_by_category"
+                        string="Category"
+                        context="{'group_by': 'category_name'}"
+                    />
+                </group>
+
+            </search>
+        </field>
+    </record>
+
+
+
+
+</odoo>

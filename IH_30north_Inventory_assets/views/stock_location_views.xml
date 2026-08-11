@@ -1,0 +1,151 @@
+<odoo>
+
+<record id="view_custom_location_tree" model="ir.ui.view">
+    <field name="name">custom.inventory.location.tree</field>
+    <field name="model">custom.inventory.location</field>
+    <field name="arch" type="xml">
+        <tree>
+            <field name="name" optional="show"/>
+            <field name="code" optional="show"/>
+            <field name="manager_ids" optional="show"/>
+            <field name="current_asset_count"  optional="show"/>
+            <field name="maintenance_location" optional="show"/>
+        </tree>
+    </field>
+</record>
+
+<record id="view_custom_location_form" model="ir.ui.view">
+    <field name="name">custom.inventory.location.form</field>
+    <field name="model">custom.inventory.location</field>
+    <field name="arch" type="xml">
+        <form>
+            <sheet>
+                <group>
+                    <group>
+                        <field name="name"/>
+                        <field name="code"/>
+                        <field name="manager_ids" widget="many2many_tags"/>
+                        <field name="active"/>
+                        <field name="analytic_account_asset" readonly="1"/>
+                        <field name="maintenance_location" />
+                    </group>
+                    <group>
+                        <field name="address"/>
+                        <field name="current_asset_count" readonly="1"/>
+                        <field name="notes"/>
+                    </group>
+                </group>
+
+
+                <notebook>
+ <page string="Products">
+      <field name="assigned_product_ids">
+          <tree>
+              <field name="name"/>
+              <field name="asset_name"/>
+              <field name="asset_status"/>
+              <field name="track_serial"/>
+          </tree>
+      </field>
+  </page>
+   <page string="Outgoing (From this Location)">
+        <group >
+            <field name="move_source_ids" readonly="1">
+                <tree>
+                    <field name="product_id"/>
+                    <field name="asset_type"/>
+                    <field name="location_dest_id"/>
+                    <field name="move_date"/>
+                    <field name="moved_by"/>
+                </tree>
+            </field>
+        </group>
+  </page>
+
+  <page string="Incoming (To this Location)">
+        <group  >
+            <field name="move_dest_ids" readonly="1">
+                <tree>
+                    <field name="product_id"/>
+                    <field name="asset_type"/>
+                    <field name="location_id"/>
+<!--                    <field name="state"/>-->
+                    <field name="move_date"/>
+                    <field name="moved_by"/>
+                </tree>
+            </field>
+        </group>
+</page>
+                </notebook>
+            </sheet>
+        </form>
+    </field>
+</record>
+
+     <record id="view_custom_location_search" model="ir.ui.view">
+        <field name="name">custom.inventory.location.search</field>
+        <field name="model">custom.inventory.location</field>
+        <field name="arch" type="xml">
+            <search string="Search Locations">
+
+                <!-- Search Fields -->
+                <field name="name"/>
+                <field name="code"/>
+                <field name="manager_ids"/>
+                <field name="address"/>
+                <field name="analytic_account_asset"/>
+                <field name="maintenance_location"/>
+                <field name="notes"/>
+
+                <separator/>
+
+                <!-- Filters -->
+                <filter
+                    name="active_locations"
+                    string="Active"
+                    domain="[('active', '=', True)]"/>
+
+                <filter
+                    name="inactive_locations"
+                    string="Inactive"
+                    domain="[('active', '=', False)]"/>
+
+                <filter
+                    name="maintenance_locations"
+                    string="Maintenance Locations"
+                    domain="[('maintenance_location', '=', True)]"/>
+
+                <filter
+                    name="non_maintenance_locations"
+                    string="Non-Maintenance Locations"
+                    domain="[('maintenance_location', '=', False)]"/>
+
+                <separator/>
+
+                <!-- Group By -->
+                <group expand="0" string="Group By">
+
+                    <filter
+                        name="group_by_manager"
+                        string="Manager"
+                        context="{'group_by': 'manager_ids'}"/>
+
+                    <filter
+                        name="group_by_maintenance"
+                        string="Maintenance Location"
+                        context="{'group_by': 'maintenance_location'}"/>
+
+                    <filter
+                        name="group_by_analytic_account"
+                        string="Analytic Account"
+                        context="{'group_by': 'analytic_account_asset'}"/>
+
+                </group>
+
+            </search>
+        </field>
+    </record>
+
+
+
+</odoo>

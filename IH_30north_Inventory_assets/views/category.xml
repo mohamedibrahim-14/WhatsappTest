@@ -1,0 +1,65 @@
+<odoo>
+
+<record id="view_custom_category_form" model="ir.ui.view">
+    <field name="name">custom.inventory.category.form</field>
+    <field name="model">custom.inventory.category</field>
+    <field name="arch" type="xml">
+        <form string="Product Category">
+            <sheet>
+                <group>
+                    <field name="parent_category_name"/>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="description"/>
+                    <field name="category_color" widget="color"/>
+
+                </group>
+            </sheet>
+        </form>
+    </field>
+</record>
+
+<record id="view_custom_category_tree" model="ir.ui.view">
+    <field name="name">custom.inventory.category.tree</field>
+    <field name="model">custom.inventory.category</field>
+    <field name="arch" type="xml">
+        <tree>
+            <field name="parent_category_name"/>
+            <field name="name"/>
+            <field name="code"/>
+
+        </tree>
+    </field>
+</record>
+
+     <record id="view_custom_category_search" model="ir.ui.view">
+        <field name="name">custom.inventory.category.search</field>
+        <field name="model">custom.inventory.category</field>
+        <field name="arch" type="xml">
+            <search string="Search Categories">
+
+                <!-- Search -->
+                <field name="parent_category_name"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="description"/>
+
+                <separator/>
+
+                <!-- Group By -->
+                <group expand="0" string="Group By">
+
+                    <filter
+                        name="group_by_parent_category"
+                        string="Parent Category"
+                        context="{'group_by': 'parent_category_name'}"/>
+
+                </group>
+
+            </search>
+        </field>
+    </record>
+
+
+
+</odoo>

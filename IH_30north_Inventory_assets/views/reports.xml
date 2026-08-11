@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="action_report_qr_code" model="ir.actions.report">
+            <field name="name">Print QR Code</field>
+            <field name="model">custom.inventory.product</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">IH_30north_Inventory_assets.report_qr_code_template</field>
+            <field name="report_file">IH_30north_Inventory_assets.report_qr_code_template</field>
+            <field name="binding_model_id" ref="model_custom_inventory_product"/>
+            <field name="binding_type">report</field>
+        </record>
+
+    </data>
+</odoo>

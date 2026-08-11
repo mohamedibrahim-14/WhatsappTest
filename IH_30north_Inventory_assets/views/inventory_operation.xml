@@ -1,0 +1,212 @@
+<odoo>
+
+<record id="view_custom_product_tree" model="ir.ui.view">
+    <field name="name">custom.inventory.product.tree</field>
+    <field name="model">custom.inventory.operation</field>
+    <field name="arch" type="xml">
+        <tree>
+                <field name="request_id" />
+            <field name="sequence_code"/>
+            <field name="name"/>
+            <field name="code"/>
+            <field name="default_source_location_id"/>
+            <field name="default_dest_location_id"/>
+            <field name="requested_by" />
+            <field name="date"/>
+            <field name="delivery_date"/>
+            <field name="expected_date"/>
+            <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'confirmed'" decoration-danger="state == 'cancel'" decoration-primary="state == 'in_progress'"/>
+
+
+        </tree>
+    </field>
+</record>
+
+<record id="view_custom_inventory_product_form" model="ir.ui.view">
+    <field name="name">custom.inventory.product.form</field>
+    <field name="model">custom.inventory.operation</field>
+    <field name="arch" type="xml">
+        <form>
+            <header>
+    <button name="action_confirm"
+            type="object"
+            string="Confirm"
+            class="btn-primary"
+            invisible=" state in ['draft','confirmed','cancel'] or not can_confirm"
+
+    />
+            <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,confirmed,cancel" />
+
+    <button name="action_progress"
+           type="object"
+           string="IN Progress"
+           class="btn-primary"
+           invisible="state in ['in_progress','confirmed','cancel'] "
+    />
+
+    <button name="action_refuse"
+        type="object"
+        string="Refuse"
+        class="btn-secondary"
+        invisible="state in ['draft','cancel'] or not can_confirm"
+
+    />
+
+    <button name="action_draft"
+        type="object"
+        string="Draft"
+        class="btn-secondary"
+        invisible="state in ['in_progress','confirmed','draft']" />
+</header>
+            <sheet>
+                    <div name="button_box" class="oe_button_box">
+                        <button name="action_view_all_reports"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-line-chart">
+                            <field name="report_count" widget="statinfo" string="Stock Assets"/>
+                        </button>
+                    </div>
+                <group>
+                <group>
+                    <field name="can_confirm" invisible="1" />
+                        <field name="request_id" readonly="1" />
+                        <field name="sequence_code"/>
+                        <field name="requested_by" readonly="1"/>
+                        <field name="name"/>
+                        <field name="code"/>
+                        <field name="date"/>
+                        <field name="notes"/>
+                </group>
+                <group>
+                     <field name="default_source_location_id"/>
+                     <field name="default_dest_location_id"/>
+                    <field name="delivery_date"/>
+                    <field name="expected_date"/>
+                </group>
+                </group>
+                <notebook>
+                    <page string="Products to Movement">
+                        <field name="move_ids"  readonly="state == 'confirmed'" >
+                            <tree editable="bottom">
+                                <field name="asset_type" domain="[('id', 'in', available_asset_type_ids)]"/>
+                                <field name="product_id"
+                                       options="{'no_create': True, 'no_quick_create': True}"
+                                       context="{'asset_type_id': asset_type, 'location_id': location_id}"/>
+
+                                <field name="track_serial"/>
+                                <field name="location_id" readonly="1"/>
+                                <field name="location_dest_id" readonly="1"/>
+                                <field name="available_asset_type_ids" />
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
+            </sheet>
+           <div class="oe_chatter">
+              <field name="message_follower_ids"/>
+              <field name="activity_ids"/>
+              <field name="message_ids"/>
+           </div>
+        </form>
+    </field>
+</record>
+
+
+    <record id="view_custom_inventory_operation_search" model="ir.ui.view">
+    <field name="name">custom.inventory.operation.search</field>
+    <field name="model">custom.inventory.operation</field>
+    <field name="arch" type="xml">
+        <search string="Search Operations">
+
+            <!-- Search Fields -->
+            <field name="request_id"/>
+            <field name="sequence_code"/>
+            <field name="name"/>
+            <field name="code"/>
+            <field name="default_source_location_id"/>
+            <field name="default_dest_location_id"/>
+            <field name="requested_by"/>
+            <field name="date"/>
+            <field name="delivery_date"/>
+            <field name="expected_date"/>
+            <field name="state"/>
+
+            <separator/>
+
+            <!-- State Filters -->
+            <filter
+                name="draft"
+                string="Draft"
+                domain="[('state', '=', 'draft')]"/>
+
+            <filter
+                name="in_progress"
+                string="In Progress"
+                domain="[('state', '=', 'in_progress')]"/>
+
+            <filter
+                name="confirmed"
+                string="Confirmed"
+                domain="[('state', '=', 'confirmed')]"/>
+
+            <filter
+                name="cancelled"
+                string="Cancelled"
+                domain="[('state', '=', 'cancel')]"/>
+
+            <separator/>
+
+            <!-- Date Filters -->
+            <filter
+                name="today"
+                string="Today"
+                domain="[('date', '=', context_today())]"/>
+
+            <filter
+                name="delivery_today"
+                string="Delivery Today"
+                domain="[('delivery_date', '=', context_today())]"/>
+
+            <separator/>
+
+            <!-- Group By -->
+            <group expand="0" string="Group By">
+
+                <filter
+                    name="group_by_state"
+                    string="Status"
+                    context="{'group_by': 'state'}"/>
+
+                <filter
+                    name="group_by_requested_by"
+                    string="Requested By"
+                    context="{'group_by': 'requested_by'}"/>
+
+                <filter
+                    name="group_by_source_location"
+                    string="Source Location"
+                    context="{'group_by': 'default_source_location_id'}"/>
+
+                <filter
+                    name="group_by_destination_location"
+                    string="Destination Location"
+                    context="{'group_by': 'default_dest_location_id'}"/>
+
+                <filter
+                    name="group_by_date"
+                    string="Date"
+                    context="{'group_by': 'date'}"/>
+
+                <filter
+                    name="group_by_delivery_date"
+                    string="Delivery Date"
+                    context="{'group_by': 'delivery_date'}"/>
+
+            </group>
+
+        </search>
+    </field>
+</record>
+
+</odoo>

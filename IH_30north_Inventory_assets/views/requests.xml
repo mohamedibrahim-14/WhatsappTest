@@ -1,0 +1,207 @@
+<odoo>
+
+ <record id="view_requests_inventory_tree" model="ir.ui.view">
+    <field name="name">requests.inventory.tree</field>
+    <field name="model">requests.inventory</field>
+    <field name="arch" type="xml">
+      <tree string="Asset Requests">
+        <field name="name"/>
+        <field name="request_date"/>
+        <field name="location_id"/>
+        <field name="requested_by"/>
+          <field name="current_asset_count_requests"/>
+        <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state in ['approved','done']" decoration-danger="state == 'rejected'"  decoration-primary="state in ['validate','approved','Inventory_Validation']" />
+
+      </tree>
+    </field>
+  </record>
+
+  <record id="view_requests_inventory_form" model="ir.ui.view">
+    <field name="name">requests.inventory.form</field>
+    <field name="model">requests.inventory</field>
+    <field name="arch" type="xml">
+      <form string="Asset Request" create="1" edit="1" >
+
+
+
+    <header>
+    <button name="action_validate"
+        type="object"
+        string="Validate"
+        class="btn-primary"
+        groups="IH_30north_Inventory_assets.group_validate"
+        invisible="state != 'draft'" />
+            <field name="state" widget="statusbar" statusbar_visible="draft,validate,Inventory_Validation,approved,rejected"/>
+
+    <button name="action_approve"
+            type="object"
+            string="Approved"
+            class="btn-primary"
+            groups="IH_30north_Inventory_assets.group_approved"
+            invisible=" state != 'Inventory_Validation'"/>
+
+
+    <button name="action_confirm_inventory"
+            type="object"
+            string="Inventory Validation"
+            class="btn-primary"
+            groups="IH_30north_Inventory_assets.group_confirm_availability"
+            invisible=" state != 'validate'"/>
+
+
+    <button name="action_refuse"
+        type="object"
+        string="Refuse"
+        class="btn-secondary"
+        groups="IH_30north_Inventory_assets.group_confirm_availability,IH_30north_Inventory_assets.group_approved"
+        invisible=" state in ['rejected','draft']"/>
+
+
+
+   <button name="action_draft"
+        type="object"
+        string="Reset To Draft"
+        class="btn-secondary"
+        groups="IH_30north_Inventory_assets.group_confirm_availability,IH_30north_Inventory_assets.group_custom_asset_manager"
+        invisible=" state != 'rejected'"/>
+
+
+</header>
+        <sheet>
+                  <div name="button_box" class="oe_button_box">
+    <button name="action_view_movements"
+            type="object"
+            class="oe_stat_button"
+            icon="fa-exchange"
+            invisible="operation_count == 0">
+        <field name="operation_count" string="Movements" widget="statinfo"/>
+    </button>
+</div>
+        <group>
+          <group>
+            <field name="name"/>
+            <field name="request_date"/>
+            <field name="location_id"/>
+            <field name="requested_by"/>
+          </group>
+            <group>
+                <field name="current_asset_count_requests"/>
+                <field name="notes"/>
+            </group>
+</group>
+          <notebook>
+            <page string="Request Lines">
+              <field name="line_ids" readonly="state == 'approved'">
+                <tree>
+                    <field name="asset_type"/>
+                    <field name="quantity" />
+                    <field name="location_id" readonly="1"/>
+                    <field name="availability_no"/>
+                    <field name="un_availability_no"/>
+                </tree>
+              </field>
+            </page>
+
+          </notebook>
+        </sheet>
+           <div class="oe_chatter">
+        <field name="message_follower_ids"/>
+        <field name="activity_ids"/>
+        <field name="message_ids"/>
+    </div>
+      </form>
+    </field>
+  </record>
+
+    <record id="view_requests_inventory_search" model="ir.ui.view">
+    <field name="name">requests.inventory.search</field>
+    <field name="model">requests.inventory</field>
+    <field name="arch" type="xml">
+        <search string="Search Asset Requests">
+
+            <!-- Search Fields -->
+            <field name="name"/>
+            <field name="request_date"/>
+            <field name="location_id"/>
+            <field name="requested_by"/>
+            <field name="state"/>
+            <field name="notes"/>
+
+            <separator/>
+
+            <!-- State Filters -->
+
+            <filter
+                name="draft"
+                string="Draft"
+                domain="[('state', '=', 'draft')]"/>
+
+            <filter
+                name="validate"
+                string="Validate"
+                domain="[('state', '=', 'validate')]"/>
+
+            <filter
+                name="inventory_validation"
+                string="Inventory Validation"
+                domain="[('state', '=', 'Inventory_Validation')]"/>
+
+            <filter
+                name="approved"
+                string="Approved"
+                domain="[('state', '=', 'approved')]"/>
+
+            <filter
+                name="rejected"
+                string="Rejected"
+                domain="[('state', '=', 'rejected')]"/>
+
+            <separator/>
+
+            <!-- Date Filters -->
+
+            <filter
+                name="request_today"
+                string="Today"
+                domain="[('request_date', '=', context_today())]"/>
+
+            <filter
+                name="request_this_month"
+                string="This Month"
+                domain="[
+                    ('request_date', '&gt;=', (context_today() + relativedelta(day=1)).strftime('%Y-%m-%d')),
+                    ('request_date', '&lt;', (context_today() + relativedelta(months=1, day=1)).strftime('%Y-%m-%d'))
+                ]"/>
+
+            <separator/>
+
+            <!-- Group By -->
+
+            <group expand="0" string="Group By">
+
+                <filter
+                    name="group_by_state"
+                    string="Status"
+                    context="{'group_by': 'state'}"/>
+
+                <filter
+                    name="group_by_location"
+                    string="Location"
+                    context="{'group_by': 'location_id'}"/>
+
+                <filter
+                    name="group_by_requested_by"
+                    string="Requested By"
+                    context="{'group_by': 'requested_by'}"/>
+
+                <filter
+                    name="group_by_request_date"
+                    string="Request Date"
+                    context="{'group_by': 'request_date'}"/>
+
+            </group>
+
+        </search>
+    </field>
+</record>
+</odoo>

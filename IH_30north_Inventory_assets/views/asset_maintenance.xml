@@ -1,0 +1,160 @@
+<odoo>
+    <!-- Tree View -->
+    <record id="view_asset_maintenance_tree" model="ir.ui.view">
+        <field name="name">asset.maintenance.tree</field>
+        <field name="model">asset.maintenance</field>
+        <field name="arch" type="xml">
+            <tree>
+ <field name="name"/>
+                <field name="location_id"/>
+                <field name="requested_by"/>
+                <field name="priority"/>
+                <field name="maintenance_responsible"/>
+                <field name="state"/>
+                <field name="cost"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_asset_maintenance_form" model="ir.ui.view">
+        <field name="name">asset.maintenance.form</field>
+        <field name="model">asset.maintenance</field>
+        <field name="arch" type="xml">
+             <form string="Maintenance Request">
+            <header>
+                <button name="action_approve" string="Approve" type="object"
+                         class="btn-primary" invisible="state in ['approved','maintenance','done']" groups="IH_30north_Inventory_assets.group_maintenance_manager,IH_30north_Inventory_assets.group_custom_asset_branch_manager"
+/>
+                <button name="action_start_maintenance" string="Start Maintenance" type="object"
+                         class="btn-primary" invisible="state in ['draft','maintenance','done']" groups="IH_30north_Inventory_assets.group_maintenance_manager,IH_30north_Inventory_assets.group_custom_asset_branch_manager"/>
+                <button name="action_done" string="Done" type="object"
+                         class="btn-primary" invisible="state in ['draft','done']" groups="IH_30north_Inventory_assets.group_maintenance_manager,IH_30north_Inventory_assets.group_custom_asset_branch_manager"/>
+                <button name="action_draft" string="draft" type="object"
+                         class="btn-primary" invisible="state in ['draft','maintenance','approved']" groups="IH_30north_Inventory_assets.group_maintenance_manager,IH_30north_Inventory_assets.group_custom_asset_branch_manager"/>
+                <field name="state" widget="statusbar" statusbar_visible="draft,approved,maintenance,done"/>
+            </header>
+            <sheet>
+                <group>
+                    <field name="name" readonly="1"/>
+                    <field name="location_id"/>
+                    <field name="requested_by"/>
+                    <field name="priority"/>
+                    <field name="maintenance_responsible"/>
+                    <field name="analytic_account_id"/>
+                    <field name="asset_id"
+                           domain="[('location_id', '=', location_id), ('asset_status', 'in', ['active', 'transferable'])]"
+                           context="{'maintenance_asset_pick': 1}"/>
+                    <field name="note"/>
+                    <field name="cost" invisible="state in ['draft','approved']    "/>
+                </group>
+            </sheet>
+
+                  <div class="oe_chatter">
+              <field name="message_follower_ids"/>
+              <field name="activity_ids"/>
+              <field name="message_ids"/>
+           </div>
+        </form>
+        </field>
+    </record>
+
+    <record id="view_asset_maintenance_search" model="ir.ui.view">
+    <field name="name">asset.maintenance.search</field>
+    <field name="model">asset.maintenance</field>
+    <field name="arch" type="xml">
+        <search string="Search Maintenance">
+
+            <!-- Search Fields -->
+            <field name="name"/>
+            <field name="location_id"/>
+            <field name="requested_by"/>
+            <field name="priority"/>
+            <field name="maintenance_responsible"/>
+            <field name="state"/>
+            <field name="analytic_account_id"/>
+            <field name="asset_id"/>
+            <field name="note"/>
+
+            <separator/>
+
+            <!-- State Filters -->
+            <filter
+                name="draft"
+                string="Draft"
+                domain="[('state', '=', 'draft')]"/>
+
+            <filter
+                name="approved"
+                string="Approved"
+                domain="[('state', '=', 'approved')]"/>
+
+            <filter
+                name="maintenance"
+                string="In Maintenance"
+                domain="[('state', '=', 'maintenance')]"/>
+
+            <filter
+                name="done"
+                string="Done"
+                domain="[('state', '=', 'done')]"/>
+
+            <separator/>
+
+            <!-- Priority Filters -->
+            <filter
+                name="high_priority"
+                string="High Priority"
+                domain="[('priority', '=', 'high')]"/>
+
+            <filter
+                name="low_priority"
+                string="Low Priority"
+                domain="[('priority', '=', 'low')]"/>
+
+            <separator/>
+
+            <!-- Group By -->
+            <group expand="0" string="Group By">
+
+                <filter
+                    name="group_by_state"
+                    string="Status"
+                    context="{'group_by': 'state'}"/>
+
+                <filter
+                    name="group_by_location"
+                    string="Location"
+                    context="{'group_by': 'location_id'}"/>
+
+                <filter
+                    name="group_by_requested_by"
+                    string="Requested By"
+                    context="{'group_by': 'requested_by'}"/>
+
+                <filter
+                    name="group_by_responsible"
+                    string="Maintenance Responsible"
+                    context="{'group_by': 'maintenance_responsible'}"/>
+
+                <filter
+                    name="group_by_priority"
+                    string="Priority"
+                    context="{'group_by': 'priority'}"/>
+
+                <filter
+                    name="group_by_asset"
+                    string="Asset"
+                    context="{'group_by': 'asset_id'}"/>
+
+                <filter
+                    name="group_by_analytic_account"
+                    string="Analytic Account"
+                    context="{'group_by': 'analytic_account_id'}"/>
+
+            </group>
+
+        </search>
+    </field>
+</record>
+</odoo>

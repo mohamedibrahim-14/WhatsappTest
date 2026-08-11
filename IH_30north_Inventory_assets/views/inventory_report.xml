@@ -1,0 +1,16 @@
+<odoo>
+<!--    asset location-->
+<record id="view_tree_custom_inventory_reporting" model="ir.ui.view">
+    <field name="name">custom.inventory.reporting.tree</field>
+    <field name="model">custom.inventory.reporting</field>
+    <field name="arch" type="xml">
+        <tree string="Inventory Reporting" create="false" edit="false">
+            <field name="asset_name"/>
+            <field name="asset_type"/>
+            <field name="asset_status"/>
+            <field name="transfer_date"/>
+            <field name="transfer_location"/>
+        </tree>
+    </field>
+</record>
+</odoo>

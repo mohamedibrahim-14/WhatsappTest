@@ -1,0 +1,130 @@
+<odoo>
+    <!-- Menu Structure -->
+    <menuitem id="menu_custom_inventory_root" name="Assets"  web_icon="IH_30north_Inventory_assets,static/description/icon1.png" sequence="10"/>
+    <!-- Actions -->
+
+    <record id="action_custom_location" model="ir.actions.act_window">
+        <field name="name">Locations</field>
+        <field name="res_model">custom.inventory.location</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('active', '=', True)]</field>
+    </record>
+
+    <record id="action_custom_picking" model="ir.actions.act_window">
+        <field name="name">Operations</field>
+        <field name="res_model">custom.inventory.picking</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('active', '=', True)]</field>
+    </record>
+
+    <record id="action_custom_operation" model="ir.actions.act_window">
+    <field name="name">Movement</field>
+    <field name="res_model">custom.inventory.operation</field>
+    <field name="view_mode">tree,form</field>
+
+    </record>
+
+    <record id="action_custom_operation_maintenance" model="ir.actions.act_window">
+        <field name="name">Movement</field>
+        <field name="res_model">custom.inventory.operation</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('default_dest_location_id.maintenance_location', '=', True)]</field>
+    </record>
+
+    <record id="action_custom_category" model="ir.actions.act_window">
+    <field name="name">Categories</field>
+    <field name="res_model">custom.inventory.category</field>
+    <field name="view_mode">tree,form</field>
+</record>
+
+    <record id="action_parent_category" model="ir.actions.act_window">
+    <field name="name">Parent Categories</field>
+    <field name="res_model">custom.inventory.parent.category</field>
+    <field name="view_mode">tree,form</field>
+</record>
+
+<record id="custom_product" model="ir.actions.act_window">
+        <field name="name">Assets</field>
+        <field name="res_model">custom.inventory.product</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_custom_product_tree_assets"/>
+</record>
+
+    <record id="action_asset_type" model="ir.actions.act_window">
+        <field name="name">Assets Types</field>
+        <field name="res_model">assets.type</field>
+        <field name="view_mode">tree,form</field>
+</record>
+
+     <record id="action_custom_inventory_operation_from_analytic" model="ir.actions.act_window">
+    <field name="name">Assets Transfer</field>
+    <field name="res_model">custom.inventory.location</field>
+    <field name="view_mode">tree</field>
+    <field name="domain">[('analytic_account_asset', '=', active_id)]</field>
+    <field name="context">{'default_analytic_account_asset': active_id}</field>
+</record>
+
+    <record id="action_requesting_inventory" model="ir.actions.act_window">
+    <field name="name">Asset Requests</field>
+    <field name="res_model">requests.inventory</field>
+    <field name="view_mode">tree,form</field>
+</record>
+
+    <record id="action_unavailable_inventory_requests" model="ir.actions.act_window">
+    <field name="name">Purchase Requests</field>
+    <field name="res_model">custom.inventory.unavailable</field>
+    <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_asset_depreciation" model="ir.actions.act_window">
+    <field name="name">Depreciation</field>
+    <field name="res_model">asset.depreciation</field>
+    <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_asset_maintenance" model="ir.actions.act_window">
+        <field name="name">Asset Maintenance</field>
+        <field name="res_model">asset.maintenance</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_custom_inventory_reporting" model="ir.actions.act_window">
+    <field name="name">Assets Report</field>
+    <field name="res_model">custom.inventory.reporting</field>
+    <field name="view_mode">tree</field>
+</record>
+
+    <record id="action_ih_asset_tag" model="ir.actions.act_window">
+        <field name="name">Asset Tags</field>
+        <field name="res_model">ih.asset.tag</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+       <record id="action_custom_inventory_picking" model="ir.actions.act_window">
+        <field name="name">Inventory Pickings</field>
+        <field name="res_model">custom.inventory.picking</field>
+        <field name="view_mode">kanban,tree,form</field>
+    </record>
+
+    <menuitem id="menu_custom_inventory_picking" sequence="2" name="Dashboard" parent="menu_custom_inventory_root" action="action_custom_inventory_picking"/>
+    <!-- Submenus -->
+    <menuitem id="menu_config" name="Configuration" parent="menu_custom_inventory_root"  sequence="40" groups="IH_30north_Inventory_assets.group_custom_asset_SCM,IH_30north_Inventory_assets.group_warehouse_manager,IH_30north_Inventory_assets.group_project_manager"/>
+               <menuitem id="menu_custom_inventory_pickings" name="Movement" parent="menu_config" sequence="30" groups="IH_30north_Inventory_assets.group_project_manager,IH_30north_Inventory_assets.group_custom_asset_SCM"/>
+                    <menuitem id="menu_custom_inventory_pickings_movement" name="Movement types" parent="menu_custom_inventory_pickings" action="action_custom_picking" sequence="30" groups="IH_30north_Inventory_assets.group_project_manager,IH_30north_Inventory_assets.group_custom_asset_SCM,IH_30north_Inventory_assets.group_warehouse_manager"/>
+               <menuitem id="menu_custom_inventory_products" name="Assets"   parent="menu_config"  sequence="10"/>
+                    <menuitem id="menu_custom_inventory_products_root" name="Asset"   parent="menu_custom_inventory_products" action="custom_product" sequence="5" groups="IH_30north_Inventory_assets.group_warehouse_manager,IH_30north_Inventory_assets.group_custom_asset_SCM"/>
+                    <menuitem id="menu_asset_type"      name="Assets Types" parent="menu_custom_inventory_products" action="action_asset_type" sequence="30" groups="IH_30north_Inventory_assets.group_warehouse_manager,IH_30north_Inventory_assets.group_custom_asset_SCM"/>
+                    <menuitem id="menu_custom_category" name="Categories" parent="menu_custom_inventory_products" action="action_custom_category" sequence="35"/>
+                    <menuitem id="menu_custom_parent_category" name="Parent Categories" parent="menu_custom_inventory_products" action="action_parent_category" sequence="40"/>
+                    <menuitem id="menu_tags_asset" name="Tags" parent="menu_custom_inventory_products" action="action_ih_asset_tag" sequence="45"/>
+    <menuitem id="menu_asset_maintenance" name="Maintenance " action="action_asset_maintenance" parent="menu_custom_inventory_root" groups="IH_30north_Inventory_assets.group_project_manager,IH_30north_Inventory_assets.group_custom_asset_branch_manager,IH_30north_Inventory_assets.group_warehouse_manager,IH_30north_Inventory_assets.group_maintenance_manager,IH_30north_Inventory_assets.group_maintenance_user,IH_30north_Inventory_assets.group_custom_asset_SCM"/>
+    <menuitem id="menu_custom_inventory_locations" name="Locations" parent="menu_custom_inventory_root" action="action_custom_location" sequence="20"/>
+    <menuitem id="menu_reporting" name="Reporting" parent="menu_custom_inventory_root"   sequence="35" groups="IH_30north_Inventory_assets.group_project_manager,IH_30north_Inventory_assets.group_maintenance_user,IH_30north_Inventory_assets.group_maintenance_manager,IH_30north_Inventory_assets.group_warehouse_manager,IH_30north_Inventory_assets.group_custom_asset_SCM"/>
+               <menuitem id="menu_asset_reporting" name="Asset Reporting" parent="menu_reporting" action="action_custom_inventory_reporting"  sequence="25"  />
+               <menuitem id="menu_asset_depreciation" name="Depreciation Assets" action="action_asset_depreciation" parent="menu_reporting" groups="IH_30north_Inventory_assets.group_custom_asset_SCM"/>
+    <menuitem id="menu_custom_inventory_operation_types" name="Movement" parent="menu_custom_inventory_root" action="action_custom_operation" sequence="15" groups="IH_30north_Inventory_assets.group_project_manager,IH_30north_Inventory_assets.group_custom_asset_branch_manager,IH_30north_Inventory_assets.group_warehouse_manager,IH_30north_Inventory_assets.group_custom_asset_SCM,IH_30north_Inventory_assets.group_custom_asset_viewer"/>
+    <menuitem id="menu_custom_inventory_operation_types_maintenance" name="Movement" parent="menu_custom_inventory_root" action="action_custom_operation_maintenance" sequence="15" groups="IH_30north_Inventory_assets.group_maintenance_manager,IH_30north_Inventory_assets.group_maintenance_user"/>
+    <menuitem id="menu_Requesting" name="Requests" parent="menu_custom_inventory_root"  sequence="5"  groups="IH_30north_Inventory_assets.group_warehouse_manager,IH_30north_Inventory_assets.group_project_manager,IH_30north_Inventory_assets.group_custom_asset_SCM,IH_30north_Inventory_assets.group_purchasing"/>
+               <menuitem id="menu_asset_Requesting" name="Asset Requests" parent="menu_Requesting" action="action_requesting_inventory"  sequence="25"  groups="IH_30north_Inventory_assets.group_warehouse_manager,IH_30north_Inventory_assets.group_project_manager,IH_30north_Inventory_assets.group_custom_asset_SCM"/>
+               <menuitem id="menu_unavailable_inventory_requests" name="Purchase Requests" parent="menu_Requesting" action="action_unavailable_inventory_requests" sequence="30" groups="IH_30north_Inventory_assets.group_warehouse_manager,IH_30north_Inventory_assets.group_project_manager,IH_30north_Inventory_assets.group_custom_asset_SCM,IH_30north_Inventory_assets.group_purchasing"/>
+</odoo>

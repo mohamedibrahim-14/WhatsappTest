@@ -1,0 +1,36 @@
+<odoo>
+<record id="view_asset_inventory_quant_tree" model="ir.ui.view">
+    <field name="name">asset.inventory.quant.tree</field>
+    <field name="model">custom.inventory.quant</field>
+    <field name="arch" type="xml">
+        <tree >
+            <field name="asset_type"/>
+            <field name="location_id"/>
+            <field name="quantity"/>
+            <field name="availability_no"/>
+            <field name="un_availability_no"/>
+        </tree>
+    </field>
+</record>
+
+<!-- Form View -->
+<record id="view_asset_inventory_quant_form" model="ir.ui.view">
+    <field name="name">asset.inventory.quant.form</field>
+    <field name="model">custom.inventory.quant</field>
+    <field name="arch" type="xml">
+        <form >
+            <sheet>
+                <group>
+                    <field name="asset_type"/>
+                    <field name="location_id"/>
+                    <field name="quantity"/>
+                </group>
+                <group>
+                              <field name="availability_no"/>
+                              <field name="un_availability_no"/>
+                </group>
+            </sheet>
+        </form>
+    </field>
+</record>
+    </odoo>
