@@ -8,6 +8,7 @@
     "depends": [
         "mail",
         "whatsapp",
+        "ih_30north_helpdesk_asset"
     ],
     "installable": True,
 }
