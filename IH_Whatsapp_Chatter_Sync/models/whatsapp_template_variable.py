@@ -12,11 +12,12 @@ WHITESPACE_RUN = re.compile(r"\s+")
 # padding the length of a value that looks empty to the reader.
 ZERO_WIDTH = re.compile("[​-‏⁠﻿]")
 
-# The rendered body of a WhatsApp template may not exceed 1024 characters. A
-# description pasted from an email easily runs past that on its own and would
-# take the whole send down with it, so it is cut short and the reader is sent
-# back to the ticket for the rest.
-MAX_VARIABLE_LENGTH = 500
+# How much of an Html field is quoted in the message. The rendered body of a
+# WhatsApp template may not exceed 1024 characters, and a description pasted from
+# an email runs past that on its own, taking the whole send down with it. Only
+# the message is shortened: the record keeps the description in full, so the
+# reader opens the ticket for the rest.
+MAX_VARIABLE_LENGTH = 400
 
 
 class WhatsappTemplateVariable(models.Model):

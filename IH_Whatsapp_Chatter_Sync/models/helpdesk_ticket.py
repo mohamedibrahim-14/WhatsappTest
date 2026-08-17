@@ -3,6 +3,12 @@ import logging
 _logger = logging.getLogger(__name__)
 from odoo.exceptions import ValidationError
 
+# The WhatsApp template carrying the technician assignment notification. Matched
+# case insensitively against both the Odoo name and the name registered with
+# Meta, because a template synced back from Meta has its Odoo name rebuilt from
+# the remote slug, which title cases it: 'helpdesk1' comes back as 'Helpdesk1'.
+WHATSAPP_TEMPLATE_NAME = 'helpdesk1'
+
 
 
 
@@ -26,11 +32,13 @@ class helpdeskproduct(models.Model):
     def _get_whatsapp_free_text_values(self, template):
         """Fill the template's free text body placeholders, in order.
 
-        The 'Helpdesk' template body is
-        "Hello {{1}}, you've been assigned to ticket #{{2}} - {{3}}...", so the
-        values are the technician name, the ticket number and the ticket subject.
-        Meta rejects a send whose body placeholders are empty, so every
-        placeholder the template declares gets a value.
+        Only placeholders the template declares as free text are filled: the ones
+        typed as 'Field of Model' read the ticket themselves. Values are supplied
+        positionally, so a free text placeholder expects the technician name, the
+        ticket number and the ticket subject, in that order. Meta rejects a send
+        whose placeholders are empty, so a placeholder past the end of that list
+        still gets a value. A template built entirely from field variables asks
+        for nothing here and gets an empty mapping.
         """
         self.ensure_one()
         values = [
@@ -46,13 +54,26 @@ class helpdeskproduct(models.Model):
             for index in range(placeholder_count)
         }
 
+    @api.model
+    def _get_whatsapp_assignment_template(self):
+        """The approved template used to notify a technician of an assignment."""
+        return self.env['whatsapp.template'].search(
+            [
+                ('status', '=', 'approved'),
+                '|',
+                ('name', '=ilike', WHATSAPP_TEMPLATE_NAME),
+                ('template_name', '=ilike', WHATSAPP_TEMPLATE_NAME),
+            ],
+            limit=1,
+        )
+
     def _send_whatsapp_assignment_notification(self):
         """Notify the assigned technician via WhatsApp when they're set on the ticket."""
-        template = self.env['whatsapp.template'].search(
-            [('name', '=', 'Helpdesk'), ('status', '=', 'approved')], limit=1
-        )
+        template = self._get_whatsapp_assignment_template()
         if not template:
-            _logger.warning("Approved 'Helpdesk' WhatsApp template not found.")
+            _logger.warning(
+                "Approved '%s' WhatsApp template not found.", WHATSAPP_TEMPLATE_NAME
+            )
             return
         for rec in self:
             employee = rec.employee_helpdesk
