@@ -1,11 +1,16 @@
 import re
 
 from odoo import models
-from odoo.tools import html2plaintext
+from odoo.tools import html_to_inner_content
 
 # Meta refuses a template parameter holding a newline, a tab or four or more
 # consecutive spaces, so every run of whitespace is folded into a single space.
 WHITESPACE_RUN = re.compile(r"\s+")
+
+# Zero width characters, which Outlook scatters through a signature. Python does
+# not count them as whitespace, so folding the whitespace leaves them behind,
+# padding the length of a value that looks empty to the reader.
+ZERO_WIDTH = re.compile("[​-‏⁠﻿]")
 
 # The rendered body of a WhatsApp template may not exceed 1024 characters. A
 # description pasted from an email easily runs past that on its own and would
@@ -41,9 +46,18 @@ class WhatsappTemplateVariable(models.Model):
         return field
 
     def _whatsapp_plaintext(self, value):
-        """Flatten an HTML field value into text a WhatsApp parameter accepts."""
+        """Flatten an HTML field value into text a WhatsApp parameter accepts.
+
+        html2plaintext() is deliberately not used: it rewrites every link into
+        'label [1]' and every image into 'Image [2]', then appends the matching
+        urls as a footnote list. On a description written in Outlook that buries
+        one sentence under a dozen '/web/image/162256?access_token=...' lines.
+        html_to_inner_content() keeps the words and drops everything else, so a
+        link is read by its label and an inline image simply disappears.
+        """
         """" author: Mohamed Ebrahem """
-        text = WHITESPACE_RUN.sub(" ", html2plaintext(value or "")).strip()
+        text = ZERO_WIDTH.sub("", html_to_inner_content(value or ""))
+        text = WHITESPACE_RUN.sub(" ", text).strip()
         if len(text) > MAX_VARIABLE_LENGTH:
             text = text[:MAX_VARIABLE_LENGTH].rstrip() + "..."
         return text
