@@ -1,3 +1,4 @@
+import json
 import logging
 import re
 
@@ -150,6 +151,13 @@ class WhatsappAccount(models.Model):
 
     def _process_messages(self, value):
         """" author: Mohamed Ebrahem """
+        # Logged unconditionally: it is the only way to see what WhatsApp actually
+        # sends, and its presence proves this override is the code being run.
+        try:
+            _logger.info("IH_WA webhook payload: %s", json.dumps(value, ensure_ascii=False, default=str))
+        except Exception:  # never let logging break the webhook
+            _logger.info("IH_WA webhook payload (unserialisable): %s", value)
+
         messages = self._get_webhook_messages(value)
         replied_documents = self._get_replied_documents(messages)
 
@@ -160,7 +168,12 @@ class WhatsappAccount(models.Model):
 
         for message in messages:
             text = account._get_reply_text(message)
-            if not account._is_confirm_reply(text):
+            is_confirm = account._is_confirm_reply(text)
+            _logger.info(
+                "IH_WA reply id=%s type=%s from=%s text=%r -> confirm=%s",
+                message.get("id"), message.get("type"), message.get("from"), text, is_confirm
+            )
+            if not is_confirm:
                 continue
             ticket = account._find_ticket_for_reply(message, replied_documents)
             if not ticket:
