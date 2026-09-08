@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit the signup fields template -->
+    <template id="signup_form_inherit" inherit_id="auth_signup.fields">
+
+         <xpath expr="//div[hasclass('field-name')]" position="replace">
+         </xpath>
+        <!-- Full Name with bilingual labels -->
+        <xpath expr="//div[hasclass('field-login')]" position="replace">
+            <!-- Country Field -->
+            <div class="mb-3 field-country row align-items-center">
+                <label class="col-sm-6 col-form-label text-start">Country</label>
+                <label class="col-sm-6 col-form-label text-end">الدولة</label>
+                <div class="col-12">
+                    <select name="country_id"
+                            id="country_id"
+                            class="form-select form-select-sm"
+                            required="required"
+                            onchange="updateStateAndPhoneFields()">
+                        <option value="">Choose Country...</option>
+                        <t t-set="countries"
+                           t-value="request.env['res.country'].sudo().search([('name', '!=', False)], order='name')"/>
+                        <t t-foreach="countries" t-as="country">
+                            <option t-att-value="country.id"
+                                    t-att-data-code="country.code"
+                                    t-att-selected="country.id == int(country_id or 0)">
+                                <t t-esc="country.name"/>
+                            </option>
+                        </t>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3 field-login row align-items-center">
+                <label class="col-sm-6 col-form-label text-start">Your Email</label>
+                <label class="col-sm-6 col-form-label text-end">البريد الإلكتروني</label>
+                <div class="col-12">
+                    <input type="text" 
+                           name="login" 
+                           id="login" 
+                           class="form-control form-control-sm" 
+                           t-att-value="login"
+                           required="required"
+                           placeholder="example@example.com"
+                           title="Enter a valid email address"
+                           autocapitalize="off"/>
+                </div>
+            </div>
+
+            <!-- Full Name -->
+            <div class="mb-3 field-name row align-items-center">
+                <label class="col-sm-6 col-form-label text-start">Full Name</label>
+                <label class="col-sm-6 col-form-label text-end">الاسم</label>
+                <div class="col-12">
+                    <input type="text" 
+                           name="name" 
+                           id="name" 
+                           class="form-control form-control-sm" 
+                           placeholder="مثال : محمد ابراهيم محمد "
+                           t-att-value="name"
+                           required="required"
+                           title="Name Must Be three Part In Arabic"/>
+                    <small class="form-text text-muted" id="name-hint">Full name (three parts) must be in Arabic only.</small>
+                </div>
+            </div>
+
+            <!-- Mobile Number -->
+            <div class="mb-3 field-mobile row align-items-center ">
+                <label class="col-sm-6 col-form-label text-start">Phone Number</label>
+                <label class="col-sm-6 col-form-label text-end">رقم الهاتف</label>
+                <div class="col-12">
+                    <input type="tel" 
+                           name="mobile" 
+                           id="mobile" 
+                           class="form-control form-control-sm" 
+                           placeholder="01XXXXXXXXX"
+                           t-att-value="mobile"
+                           required="required"
+                           title="Enter a valid mobile number"/>
+                    <small class="form-text text-muted" id="mobile-hint">Example: 01012345678</small>
+                </div>
+            </div>
+
+            <!-- City/Governorate Dropdown -->
+            <div class="mb-3 field-state row align-items-center">
+                <label class="col-sm-6 col-form-label text-start">State</label>
+                <label class="col-sm-6 col-form-label text-end">المحافظة</label>
+                <div class="col-12">
+                    <select name="state_id" id="state_id" class="form-select form-select-sm">
+                        <option value="">Choose State...</option>
+                    </select>
+
+                    <!-- Hidden container for all states data -->
+                    <div id="all_states_data" style="display: none;">
+                        <t t-set="all_states"
+                        t-value="request.env['res.country.state'].sudo().search([('country_id', '!=', False)], order='country_id, name')"/>
+                        <t t-foreach="all_states" t-as="state">
+                            <span class="state-option"
+                                t-att-data-state-id="state.id"
+                                t-att-data-country-id="state.country_id.id"
+                                t-att-data-state-name="state.name"
+                                t-att-data-selected="'true' if state.id == int(state_id or 0) else 'false'">
+                            </span>
+                        </t>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date of Birth -->
+            <div class="mb-3 field-dob row align-items-center">
+                <label class="col-sm-6 col-form-label text-start">Date of Birth</label>
+                <label class="col-sm-6 col-form-label text-end">تاريخ الميلاد</label>
+                <div class="col-12 row g-2">
+                    <!-- Day -->
+                    <div class="col">
+                        <select name="dob_day" class="form-select form-select-sm">
+                            <option value="">Day</option>
+                            <t t-foreach="range(1, 32)" t-as="d">
+                                <option t-att-value="d" t-att-selected="str(d) == dob_day">
+                                    <t t-esc="d"/>
+                                </option>
+                            </t>
+                        </select>
+                    </div>
+                    <!-- Month -->
+                    <div class="col">
+                        <select name="dob_month" class="form-select form-select-sm">
+                            <option value="">Month</option>
+                            <t t-foreach="range(1, 13)" t-as="m">
+                                <option t-att-value="m" t-att-selected="str(m) == dob_month">
+                                    <t t-esc="m"/>
+                                </option>
+                            </t>
+                        </select>
+                    </div>
+                    <!-- Year -->
+                    <div class="col">
+                        <select name="dob_year" class="form-select form-select-sm">
+                            <option value="">Year</option>
+                            <t t-foreach="range(1940, datetime.date.today().year + 1)" t-as="y">
+                                <option t-att-value="y" t-att-selected="str(y) == dob_year">
+                                    <t t-esc="y"/>
+                                </option>
+                            </t>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gender Field -->
+            <div class="mb-3 field-gender row align-items-center">
+                <label class="col-sm-6 col-form-label text-start">Gender</label>
+                <label class="col-sm-6 col-form-label text-end">الجنس</label>
+                <div class="col-12">
+                    <select name="gender" id="gender" class="form-select form-select-sm">
+                        <option value="">Choose Gender...</option>
+                        <option value="Male" t-att-selected="gender == 'Male'">Male</option>
+                        <option value="Female" t-att-selected="gender == 'Female'">Female</option>
+                    </select>
+                </div>
+            </div>
+        </xpath>
+            <!-- Password -->
+            <xpath expr="//div[hasclass('field-password')]" position="replace">
+                <div class="mb-3 field-password row align-items-center">
+                    <label class="col-sm-6 col-form-label text-start">Password</label>
+                    <label class="col-sm-6 col-form-label text-end">كلمة المرور</label>
+                    <div class="col-12">
+                        <input type="password" 
+                            name="password" 
+                            id="password" 
+                            class="form-control form-control-sm" 
+                            required="required"/>
+                    </div>
+                </div>
+            </xpath>
+
+            <!-- Confirm Password -->
+            <xpath expr="//div[hasclass('field-confirm_password')]" position="replace">
+                <div class="mb-3 field-confirm_password row align-items-center">
+                    <label class="col-sm-6 col-form-label text-start">Confirm Password</label>
+                    <label class="col-sm-6 col-form-label text-end">تأكيد كلمة المرور</label>
+                    <div class="col-12">
+                        <input type="password" 
+                            name="confirm_password" 
+                            id="confirm_password" 
+                            class="form-control form-control-sm" 
+                            required="required"/>
+                    </div>
+                </div>
+            </xpath>
+    </template>
+    <template id="reset_password_form_inherit" inherit_id="auth_signup.signup">
+        <xpath expr="//p[@t-if='error']" position="replace">
+            <t t-if="error">
+                <div class="alert alert-danger" role="alert">
+                    <t t-out="error"/>
+                </div>
+            </t>
+        </xpath>
+    </template>
+
+    <template id="hide_edit_information_link"
+              inherit_id="portal.side_content">
+        <!-- Hide address details from the sidebar contact card -->
+        <xpath expr="//div[@class='o_portal_my_details']/div[@t-field='user_id.partner_id']" position="attributes">
+            <attribute name="t-options">{"widget": "contact", "fields": ["email", "phone"]}</attribute>
+        </xpath>
+        <!-- Remove "Edit information" link -->
+        <xpath expr="//a[@href='/my/account' and contains(@class, 'btn-link')]" position="replace">
+            <!-- Edit link removed -->
+        </xpath>
+    </template>
+
+   
+</odoo>

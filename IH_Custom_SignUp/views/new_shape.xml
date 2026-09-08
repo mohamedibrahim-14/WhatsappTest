@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit the signup fields template -->
+    <template id="signup_form_inherit" inherit_id="auth_signup.fields">
+        <xpath expr="//div[hasclass('field-name')]" position="replace"/>
+        
+        <xpath expr="//div[hasclass('field-login')]" position="replace">
+            <style>
+                .oe_signup_form {
+                    max-width: 100% !important;
+                    width: 100% !important;
+                    padding: 0 50px !important;
+                }
+                
+                @media (max-width: 768px) {
+                    .oe_signup_form {
+                        padding: 0 15px !important;
+                    }
+                }
+            </style>
+            
+            <div class="row gx-5">
+                <!-- LEFT COLUMN -->
+                <div class="col-lg-6 col-md-6 col-12">
+                    <!-- Country Field -->
+                    <div class="mb-3 field-country">
+                        <label class="form-label d-flex justify-content-between">
+                            <span>Country</span>
+                            <span>الدولة</span>
+                        </label>
+                        <select name="country_id"
+                                id="country_id"
+                                class="form-select"
+                                required="required"
+                                onchange="updateStateAndPhoneFields()">
+                            <option value="">Choose Country...</option>
+                            <t t-set="countries"
+                               t-value="request.env['res.country'].sudo().search([('name', '!=', False)], order='name')"/>
+                            <t t-foreach="countries" t-as="country">
+                                <option t-att-value="country.id"
+                                        t-att-data-code="country.code"
+                                        t-att-selected="country.id == int(country_id or 0)">
+                                    <t t-esc="country.name"/>
+                                </option>
+                            </t>
+                        </select>
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="mb-3 field-login">
+                        <label class="form-label d-flex justify-content-between">
+                            <span>Your Email</span>
+                            <span>البريد الإلكتروني</span>
+                        </label>
+                        <input type="text" 
+                               name="login" 
+                               id="login" 
+                               class="form-control" 
+                               t-att-value="login"
+                               required="required"
+                               placeholder="example@example.com"
+                               autocapitalize="off"/>
+                    </div>
+
+                    <!-- Full Name -->
+                    <div class="mb-3 field-name">
+                        <label class="form-label d-flex justify-content-between">
+                            <span>Full Name</span>
+                            <span>الاسم</span>
+                        </label>
+                        <input type="text" 
+                               name="name" 
+                               id="name" 
+                               class="form-control" 
+                               placeholder="مثال : محمد ابراهيم محمد"
+                               t-att-value="name"
+                               required="required"/>
+                        <small class="form-text text-muted" id="name-hint">Full name (three parts) must be in Arabic only.</small>
+                    </div>
+
+
+                    <!-- Password -->
+                    <div class="mb-3 field-password">
+                        <label class="form-label d-flex justify-content-between">
+                            <span>Password</span>
+                            <span>كلمة المرور</span>
+                        </label>
+                        <input type="password" 
+                               name="password" 
+                               id="password" 
+                               class="form-control" 
+                               required="required"/>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN -->
+                <div class="col-lg-6 col-md-6 col-12">
+                    <!-- State/Governorate Dropdown -->
+                    <div class="mb-3 field-state">
+                        <label class="form-label d-flex justify-content-between">
+                            <span>State</span>
+                            <span>المحافظة</span>
+                        </label>
+                        <select name="state_id" id="state_id" class="form-select">
+                            <option value="">Choose State...</option>
+                        </select>
+
+                        <!-- Hidden container for all states data -->
+                        <div id="all_states_data" style="display: none;">
+                            <t t-set="all_states"
+                            t-value="request.env['res.country.state'].sudo().search([('country_id', '!=', False)], order='country_id, name')"/>
+                            <t t-foreach="all_states" t-as="state">
+                                <span class="state-option"
+                                    t-att-data-state-id="state.id"
+                                    t-att-data-country-id="state.country_id.id"
+                                    t-att-data-state-name="state.name"
+                                    t-att-data-selected="'true' if state.id == int(state_id or 0) else 'false'">
+                                </span>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- Date of Birth -->
+                    <div class="mb-3 field-dob">
+                        <label class="form-label d-flex justify-content-between">
+                            <span>Date of Birth</span>
+                            <span>تاريخ الميلاد</span>
+                        </label>
+                        <div class="row g-2">
+                            <!-- Day -->
+                            <div class="col-4">
+                                <select name="dob_day" class="form-select" required="required">
+                                    <option value="">Day</option>
+                                    <t t-foreach="range(1, 32)" t-as="d">
+                                        <option t-att-value="d" t-att-selected="str(d) == dob_day">
+                                            <t t-esc="d"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <!-- Month -->
+                            <div class="col-4">
+                                <select name="dob_month" class="form-select" required="required">
+                                    <option value="">Month</option>
+                                    <t t-foreach="range(1, 13)" t-as="m">
+                                        <option t-att-value="m" t-att-selected="str(m) == dob_month">
+                                            <t t-esc="m"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <!-- Year -->
+                            <div class="col-4">
+                                <select name="dob_year" class="form-select" required="required">
+                                    <option value="">Year</option>
+                                    <t t-foreach="range(1940, datetime.date.today().year + 1)" t-as="y">
+                                        <option t-att-value="y" t-att-selected="str(y) == dob_year">
+                                            <t t-esc="y"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gender Field -->
+                    <div class="mb-3 field-gender">
+                        <label class="form-label d-flex justify-content-between">
+                            <span>Gender</span>
+                            <span>الجنس</span>
+                        </label>
+                        <select name="gender" id="gender" class="form-select" required="required">
+                            <option value="">Choose Gender...</option>
+                            <option value="Male" t-att-selected="gender == 'Male'">Male</option>
+                            <option value="Female" t-att-selected="gender == 'Female'">Female</option>
+                        </select>
+                    </div>
+                    <!-- Mobile Number -->
+                    <div class="mb-3 field-mobile">
+                        <label class="form-label d-flex justify-content-between">
+                            <span>Phone Number</span>
+                            <span>رقم الهاتف</span>
+                        </label>
+                        <input type="tel" 
+                               name="mobile" 
+                               id="mobile" 
+                               class="form-control" 
+                               placeholder="01XXXXXXXXX"
+                               t-att-value="mobile"
+                               required="required"/>
+                        <small class="form-text text-muted" id="mobile-hint">Example: 01012345678</small>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="mb-3 field-confirm_password">
+                        <label class="form-label d-flex justify-content-between">
+                            <span>Confirm Password</span>
+                            <span>تأكيد كلمة المرور</span>
+                        </label>
+                        <input type="password" 
+                               name="confirm_password" 
+                               id="confirm_password" 
+                               class="form-control" 
+                               required="required"/>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+
+        <!-- Remove the separate password fields -->
+        <xpath expr="//div[hasclass('field-password')]" position="replace"/>
+        <xpath expr="//div[hasclass('field-confirm_password')]" position="replace"/>
+    </template>
+
+    <template id="reset_password_form_inherit" inherit_id="auth_signup.signup">
+        <xpath expr="//p[@t-if='error']" position="replace">
+            <t t-if="error">
+                <div class="alert alert-danger" role="alert">
+                    <t t-raw="error"/>
+                </div>
+            </t>
+        </xpath>
+    </template>
+
+    <template id="hide_edit_information_link" inherit_id="portal.side_content">
+        <xpath expr="//a[@href='/my/account' and contains(@class, 'btn-link')]" position="replace"/>
+    </template>
+</odoo>

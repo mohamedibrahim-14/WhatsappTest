@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="address_custom_fields_clean" inherit_id="website_sale.address" priority="20">
+        <xpath expr="//form[@action='/shop/address']" position="replace">
+            <form action="/shop/address" method="post" class="checkout_autoformat">
+                <div class="row">
+
+                    <!-- Full Name -->
+                    <div t-attf-class="#{error.get('name') and 'o_has_error' or ''} col-lg-12 mb-3">
+                        <label for="name" class="form-label">Full Name *</label>
+                        <input type="text" name="name" id="name" placeholder="مثال : محمد ابراهيم محمد"
+                               pattern="[\u0600-\u06FF]+( [\u0600-\u06FF]+){2}"
+                               title="Name must be exactly three parts in Arabic"
+                               t-attf-class="form-control #{error.get('name') and 'is-invalid' or ''}"
+                               t-att-value="'name' in checkout and checkout['name'] or ''"
+                               required="required"/>
+                        <small class="form-text text-muted d-block">Full name (three parts) must be in Arabic only.</small>
+                        <div class="invalid-feedback d-block" t-if="error.get('name')">
+                            <t t-if="error.get('name') == 'missing'">This field is required.</t>
+                            <t t-else="">Please enter a valid Arabic name (three parts).</t>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div t-attf-class="#{error.get('email') and 'o_has_error' or ''} col-lg-12 mb-3">
+                        <label for="email">Email *</label>
+                        <input type="email" name="email" placeholder="email@example.com"
+                               t-attf-class="form-control #{error.get('email') and 'is-invalid' or ''}"
+                               t-att-value="'email' in checkout and checkout['email'] or ''"
+                               required="required"/>
+                        <div class="invalid-feedback d-block" t-if="error.get('email')">
+                            <t t-if="error.get('email') == 'missing'">Email is required.</t>
+                            <t t-else="">Please enter a valid email address.</t>
+                        </div>
+                    </div>
+
+                    <!-- Phone -->
+                    <div t-attf-class="#{error.get('phone') and 'o_has_error' or ''} col-lg-12 mb-3">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" name="phone" placeholder="01XXXXXXXXX"
+                               pattern="^01[0125]\d{8}$"
+                               t-attf-class="form-control #{error.get('phone') and 'is-invalid' or ''}"
+                               t-att-value="'phone' in checkout and checkout['phone'] or ''"
+                               required="required"/>
+                        <small class="form-text text-muted d-block">Example: 01012345678 (starts with 010, 011, 012, or 015)</small>
+                        <div class="invalid-feedback d-block" t-if="error.get('phone')">
+                            <t t-if="error.get('phone') == 'missing'">Phone number is required.</t>
+                            <t t-else="">Please enter a valid Egyptian mobile number.</t>
+                        </div>
+                    </div>
+
+                    <!-- State/Governorate -->
+                    <div t-attf-class="#{error.get('state_id') and 'o_has_error' or ''} col-lg-12 mb-3">
+                        <label for="state_id">Governorate *</label>
+                        <select name="state_id" required="required" class="form-select form-select-sm">
+                            <option value="">Choose Governorate...</option>
+                            <t t-set="egypt" t-value="request.env['res.country'].sudo().search([('code', '=', 'EG')], limit=1)"/>
+                            <t t-set="states" t-value="request.env['res.country.state'].sudo().search([('country_id', '=', egypt.id)])"/>
+                            <t t-foreach="states" t-as="state">
+                                <option t-att-value="state.id"
+                                        t-att-selected="'state_id' in checkout and str(state.id) == str(checkout.get('state_id',''))">
+                                    <t t-esc="state.name"/>
+                                </option>
+                            </t>
+                        </select>
+                        <div class="invalid-feedback d-block" t-if="error.get('state_id')">
+                            <t t-if="error.get('state_id') == 'missing'">Governorate is required.</t>
+                            <t t-else="">Please select a valid governorate.</t>
+                        </div>
+                    </div>
+
+                    <!-- Date of Birth -->
+                    <div t-attf-class="#{(error.get('dob_day') or error.get('dob_month') or error.get('dob_year')) and 'o_has_error' or ''} col-lg-12 mb-3">
+                        <label>Date of Birth *</label>
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <select name="dob_day" t-attf-class="form-select #{error.get('dob_day') and 'is-invalid' or ''}" required="required">
+                                    <option value="">Day</option>
+                                    <t t-foreach="range(1,32)" t-as="d">
+                                        <option t-att-value="d" t-att-selected="'dob_day' in checkout and str(d) == str(checkout.get('dob_day',''))"><t t-esc="d"/></option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="col-4">
+                                <select name="dob_month" t-attf-class="form-select #{error.get('dob_month') and 'is-invalid' or ''}" required="required">
+                                    <option value="">Month</option>
+                                    <t t-foreach="range(1,13)" t-as="m">
+                                        <option t-att-value="m" t-att-selected="'dob_month' in checkout and str(m) == str(checkout.get('dob_month',''))"><t t-esc="m"/></option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="col-4">
+                                <select name="dob_year" t-attf-class="form-select #{error.get('dob_year') and 'is-invalid' or ''}" required="required">
+                                    <option value="">Year</option>
+                                    <t t-set="current_year" t-value="2025"/>
+                                    <t t-foreach="range(1940, current_year+1)" t-as="y">
+                                        <option t-att-value="y" t-att-selected="'dob_year' in checkout and str(y) == str(checkout.get('dob_year',''))"><t t-esc="y"/></option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="invalid-feedback d-block" t-if="error.get('dob_day') or error.get('dob_month') or error.get('dob_year')">
+                            <t t-if="error.get('dob_day') == 'missing' or error.get('dob_month') == 'missing' or error.get('dob_year') == 'missing'">Complete date of birth is required.</t>
+                            <t t-else="">Please enter a valid date of birth.</t>
+                        </div>
+                    </div>
+
+                    <!-- Gender -->
+                    <div t-attf-class="#{error.get('gender') and 'o_has_error' or ''} col-lg-12 mb-3">
+                        <label for="gender">Gender *</label>
+                        <select name="gender" required="required" t-attf-class="form-select #{error.get('gender') and 'is-invalid' or ''}">
+                            <option value="">Choose Gender...</option>
+                            <option value="male" t-att-selected="'gender' in checkout and checkout.get('gender','').lower() == 'male'">Male</option>
+                            <option value="female" t-att-selected="'gender' in checkout and checkout.get('gender','').lower() == 'female'">Female</option>
+                        </select>
+                        <div class="invalid-feedback d-block" t-if="error.get('gender')">
+                            <t t-if="error.get('gender') == 'missing'">Gender is required.</t>
+                            <t t-else="">Please select a valid gender.</t>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Hidden Fields -->
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" t-nocache=""/>
+                <input type="hidden" name="submitted" value="1"/>
+                <input type="hidden" name="partner_id" t-att-value="partner_id or '0'"/>
+                <input type="hidden" name="mode" t-att-value="mode[1]"/>
+                <input type="hidden" name="callback" t-att-value="callback"/>
+                <input type="hidden" name="country_id" t-att-value="request.env.ref('base.eg').id"/>
+                <input type="hidden" name="street" value="Egypt"/>
+                <input type="hidden" name="city" value="Egypt"/>
+                <input type="hidden" name="zip" value="00000"/>
+
+                <!-- Submit Buttons -->
+                <div class="d-flex flex-column flex-md-row align-items-center justify-content-between mt-4 mb-4">
+                    <a role="button" t-att-href="mode == ('new', 'billing') and '/shop/cart' or '/shop/checkout'" class="btn btn-outline-secondary w-100 w-md-auto order-md-1 order-3">
+                        <i class="fw-light fa fa-angle-left me-2"/>Discard
+                    </a>
+                    <button type="submit" class="btn btn-primary w-100 w-md-auto order-1 order-md-3">
+                        <t t-if="mode == ('new', 'billing')">Continue checkout</t>
+                        <t t-else="">Save address</t>
+                        <i class="fw-light fa fa-angle-right ms-2"/>
+                    </button>
+                </div>
+
+            </form>
+        </xpath>
+    </template>
+</odoo>
