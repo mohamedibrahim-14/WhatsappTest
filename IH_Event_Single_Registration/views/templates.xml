@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Error Page Template for Registration Issues -->
+    <template id="registration_error_page" name="Registration Error Page">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <section class="s_text_block pt96 pb96 o_colored_level" style="background-color: #f8f9fa;">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8">
+                                <!-- Error Card -->
+                                <div class="card shadow-lg border-0">
+                                    <div class="card-body text-center p-5">
+                                        <!-- Error Icon -->
+                                        <div class="mb-4">
+                                            <t t-if="error_title and 'Already Exists' in error_title">
+                                                <i class="fa fa-user-times text-warning" style="font-size: 4rem;"/>
+                                            </t>
+                                            <t t-else="">
+                                                <i class="fa fa-exclamation-circle text-danger" style="font-size: 4rem;"/>
+                                            </t>
+                                        </div>
+                                        
+                                        <!-- Error Title -->
+                                        <h2 class="mb-3" t-attf-class="text-#{error_title and 'Already Exists' in error_title and 'warning' or 'danger'}">
+                                            <t t-esc="error_title or 'Registration Error'"/>
+                                        </h2>
+                                        
+                                        <!-- Error Message -->
+                                        <div t-attf-class="alert alert-#{error_title and 'Already Exists' in error_title and 'warning' or 'danger'} mb-4" role="alert">
+                                            <p class="mb-0 fs-5">
+                                                <t t-esc="error_message"/>
+                                            </p>
+                                        </div>
+                                        
+                                        <!-- Special message for duplicate registrations -->
+                                        <t t-if="error_title and 'Already Exists' in error_title">
+                                            <div class="alert alert-info mb-4" role="alert">
+                                                <h5 class="mb-2">
+                                                    <i class="fa fa-info-circle me-2"/>
+                                                    What does this mean?
+                                                </h5>
+                                                <p class="mb-2">You have already registered for this event. Each person can only register once.</p>
+                                                <p class="mb-0 small">
+                                                    <strong>Check your email</strong> for your original registration confirmation.
+                                                </p>
+                                            </div>
+                                        </t>
+                                        
+                                        <!-- Event Info -->
+                                        <div t-if="event" class="mb-4 p-3 bg-light rounded">
+                                            <h5 class="mb-2">
+                                                <i class="fa fa-calendar-o me-2"/>
+                                                <t t-esc="event.name"/>
+                                            </h5>
+                                            <p class="text-muted mb-2">
+                                                <i class="fa fa-clock-o me-2"/>
+                                                <span t-field="event.date_begin" t-options="{'widget': 'datetime', 'format': 'short'}"/>
+                                            </p>
+                                            <p t-if="event.address_id" class="text-muted mb-0 small">
+                                                <i class="fa fa-map-marker me-2"/>
+                                                <span t-field="event.address_id" t-options="{'widget': 'contact', 'fields': ['address']}"/>
+                                            </p>
+                                        </div>
+                                        
+                                        <!-- Action Buttons -->
+                                        <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
+                                            <a t-if="show_event_link and event" 
+                                               t-att-href="'/event/%s' % event.id" 
+                                               class="btn btn-primary btn-lg">
+                                                <i class="fa fa-arrow-left me-2"/>
+                                                Back to Event Page
+                                            </a>
+                                            <a href="/events" class="btn btn-secondary btn-lg">
+                                                <i class="fa fa-list me-2"/>
+                                                Browse Other Events
+                                            </a>
+                                        </div>
+                                        
+                                        <!-- Help Text -->
+                                        <div class="mt-4 p-3 bg-light rounded">
+                                            <p class="text-muted mb-2">
+                                                <i class="fa fa-question-circle me-1"/>
+                                                <strong>Need Help?</strong>
+                                            </p>
+                                            <p class="small text-muted mb-0">
+                                                <t t-if="error_title and 'Already Exists' in error_title">
+                                                    If you didn't register for this event or can't find your confirmation email, 
+                                                    please contact the event organizer.
+                                                </t>
+                                                <t t-else="">
+                                                    If you believe this is an error, please contact the event organizer for assistance.
+                                                </t>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+    <!-- Success Page Template for Registration Success -->
+    <template id="registration_success_page" name="Registration Success Page">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <section class="s_text_block pt96 pb96 o_colored_level" style="background-color: #f0f8ff;">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8">
+                                <!-- Success Card -->
+                                <div class="card shadow-lg border-0">
+                                    <div class="card-body text-center p-5">
+                                        <!-- Success Icon -->
+                                        <div class="mb-4">
+                                            <i class="fa fa-check-circle text-success" style="font-size: 4rem;"/>
+                                        </div>
+                                        
+                                        <!-- Success Title -->
+                                        <h2 class="mb-3 text-success">
+                                            Registration Successful!
+                                        </h2>
+                                        
+                                        <!-- Success Message -->
+                                        <div class="alert alert-success mb-4" role="alert">
+                                            <p class="mb-0 fs-5">
+                                                <t t-esc="message"/>
+                                            </p>
+                                        </div>
+                                        
+                                        <!-- Event Info -->
+                                        <div t-if="event" class="mb-4 p-3 bg-light rounded">
+                                            <h5 class="mb-2">
+                                                <i class="fa fa-calendar-o me-2"/>
+                                                <t t-esc="event.name"/>
+                                            </h5>
+                                            <p class="text-muted mb-0">
+                                                <i class="fa fa-clock-o me-2"/>
+                                                <span t-field="event.date_begin" t-options="{'widget': 'datetime', 'format': 'short'}"/>
+                                            </p>
+                                        </div>
+                                        
+                                        <!-- Action Buttons -->
+                                        <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
+                                            <a t-if="show_event_link and event" 
+                                               t-att-href="'/event/%s' % event.id" 
+                                               class="btn btn-primary btn-lg">
+                                                <i class="fa fa-eye me-2"/>
+                                                View Event Details
+                                            </a>
+                                            <a href="/events" class="btn btn-secondary btn-lg">
+                                                <i class="fa fa-list me-2"/>
+                                                View All Events
+                                            </a>
+                                        </div>
+                                        
+                                        <!-- Help Text -->
+                                        <div class="mt-4 text-muted">
+                                            <p class="small mb-0">
+                                                <i class="fa fa-envelope me-1"/>
+                                                You will receive a confirmation email with your registration details.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+</odoo>

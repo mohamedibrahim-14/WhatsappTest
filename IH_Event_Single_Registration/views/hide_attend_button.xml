@@ -1,0 +1,22 @@
+<odoo>
+    <record id="view_event_registration_tree_hide_mark_attending" model="ir.ui.view">
+        <field name="name">event.registration.tree.hide.mark.attending</field>
+        <field name="model">event.registration</field>
+        <field name="inherit_id" ref="event.view_event_registration_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_set_done']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_event_registration_form_hide_mark_attending" model="ir.ui.view">
+        <field name="name">event.registration.form.hide.mark.attending</field>
+        <field name="model">event.registration</field>
+        <field name="inherit_id" ref="event.view_event_registration_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_set_done']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

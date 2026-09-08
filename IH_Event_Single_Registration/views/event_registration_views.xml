@@ -1,0 +1,188 @@
+<odoo>
+    <!-- Override Modal Ticket Selection -->
+    <template id="registration_tickets_selectable" inherit_id="website_event.modal_ticket_registration">
+        <xpath expr="//div[@id='o_wevent_tickets']" position="replace">
+
+            <form t-if="event.event_registrations_open and (not event.event_ticket_ids or any(not ticket.is_expired for ticket in event.event_ticket_ids))"
+                  id="registration_form"
+                  t-att-data-event-id="event.id"
+                  t-attf-action="/event/#{slug(event)}/registration/confirm"
+                  method="post">
+
+                <div id="o_wevent_tickets" class="shadow-sm o_wevent_js_ticket_details">
+
+                    <!-- Ticket selection: always visible -->
+                    <div class="modal-body">
+                        <!-- Filter active tickets: not expired AND seats_max != 0 -->
+                        <t t-set="active_tickets" t-value="[t for t in event.event_ticket_ids if not t.is_expired and t.seats_max != 0]"/>
+                        <t t-set="has_multiple" t-value="len(active_tickets) > 1"/>
+
+                        <!-- Show message if no tickets available -->
+                        <t t-if="not active_tickets">
+                            <div class="alert alert-warning mb-3 text-center">
+                                <i class="fa fa-info-circle"/> 
+                                <strong>No tickets available</strong>
+                                <p class="mb-0">There are currently no tickets available for this event.</p>
+                            </div>
+                        </t>
+
+                        <!-- Show info alert for multiple tickets -->
+                        <t t-if="has_multiple">
+                            <div class="alert alert-info mb-3">
+                                <i class="fa fa-info-circle"/> Please select ONE ticket type (Quantity: 1)
+                            </div>
+                        </t>
+
+                        <!-- Loop through active tickets -->
+                        <t t-foreach="enumerate(active_tickets)" t-as="ticket_info">
+                            <t t-set="ticket_index" t-value="ticket_info[0]"/>
+                            <t t-set="ticket" t-value="ticket_info[1]"/>
+
+                            <!-- TICKET CARD -->
+                            <div class="ticket-card ticket-selectable mb-3 p-3 rounded border" 
+                                 t-att-data-ticket-id="ticket.id"
+                                 style="cursor: pointer; transition: all 0.3s ease;">
+
+                                <!-- Radio Button for multiple tickets -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center flex-grow-1">
+                                        <t t-if="has_multiple">
+                                            <div class="form-check me-3">
+                                                <input type="radio"
+                                                       name="ticket_choice"
+                                                       class="form-check-input ticket-radio-selector"
+                                                       t-att-id="'ticket_radio_%s' % ticket.id"
+                                                       t-att-data-ticket-id="ticket.id"
+                                                       t-att-checked="'checked' if ticket_index == 0 else None"
+                                                       style="width: 1.5rem; height: 1.5rem; cursor: pointer;"/>
+                                            </div>
+                                        </t>
+
+                                        <!-- Ticket Info -->
+                                        <div class="flex-grow-1">
+                                            <label t-att-for="'ticket_radio_%s' % ticket.id if has_multiple else None" 
+                                                   class="mb-0 w-100" 
+                                                   style="cursor: pointer;">
+                                                <h5 class="mb-1">
+                                                    <i class="fa fa-ticket text-primary me-2"/>
+                                                    <t t-esc="ticket.name"/>
+                                                </h5>
+                                                <small class="text-muted" t-if="ticket.description">
+                                                    <t t-esc="ticket.description"/>
+                                                </small>
+                                                <div class="mt-2">
+                                                    <span class="badge bg-info">
+                                                        <i class="fa fa-user"/> Qty: 1
+                                                    </span>
+                                                    <!-- Show seats available if limited -->
+                                                    <t t-if="ticket.seats_limited and ticket.seats_available">
+                                                        <span class="badge bg-warning ms-2">
+                                                            <i class="fa fa-users"/> <t t-esc="ticket.seats_available"/> left
+                                                        </span>
+                                                    </t>
+                                                    <!-- Show sold out if no seats -->
+                                                    <t t-if="ticket.seats_limited and ticket.seats_available == 0">
+                                                        <span class="badge bg-danger ms-2">
+                                                            <i class="fa fa-ban"/> Sold Out
+                                                        </span>
+                                                    </t>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Price badge with discount support -->
+                                    <div class="text-end ms-3">
+                                        <!-- Check if there's a discount (price_reduce < price) -->
+                                        <t t-if="ticket.price_reduce and ticket.price_reduce &lt; ticket.price">
+                                            <!-- Original price (strikethrough) -->
+                                            <div class="text-muted small text-decoration-line-through mb-1">
+                                                <t t-esc="ticket.price" 
+                                                   t-options="{'widget': 'monetary', 'display_currency': ticket.currency_id or event.company_id.currency_id}"/>
+                                            </div>
+                                            <!-- Discounted price -->
+                                            <span class="badge bg-success fs-5 px-3 py-2">
+                                                <t t-if="ticket.price_reduce > 0">
+                                                    <t t-esc="ticket.price_reduce" 
+                                                       t-options="{'widget': 'monetary', 'display_currency': ticket.currency_id or event.company_id.currency_id}"/>
+                                                </t>
+                                                <t t-else="">Free</t>
+                                            </span>
+                                            <!-- Optional: Show discount percentage -->
+                                            <t t-set="discount_percent" t-value="int((1 - ticket.price_reduce / ticket.price) * 100)"/>
+                                            <div class="badge bg-danger small mt-1">
+                                                -<t t-esc="discount_percent"/>%
+                                            </div>
+                                        </t>
+                                        <!-- No discount: show regular price -->
+                                        <t t-else="">
+                                            <span class="badge bg-success fs-5 px-3 py-2">
+                                                <t t-if="ticket.price > 0">
+                                                    <t t-esc="ticket.price" 
+                                                       t-options="{'widget': 'monetary', 'display_currency': ticket.currency_id or event.company_id.currency_id}"/>
+                                                </t>
+                                                <t t-else="">Free</t>
+                                            </span>
+                                        </t>
+                                    </div>
+
+                                </div>
+
+                                <!-- Hidden quantity input -->
+                                <input type="hidden"
+                                       t-att-name="'nb_register-%s' % ticket.id"
+                                       class="ticket-quantity-input"
+                                       t-att-value="'1' if not has_multiple or ticket_index == 0 else '0'"/>
+                            </div>
+                            <!-- /TICKET CARD -->
+                        </t>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="modal-footer flex-lg-row border-top">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fa fa-times"/> Close
+                        </button>
+
+                        <!-- Only show register buttons if there are active tickets -->
+                        <t t-if="active_tickets">
+                            <!-- Only show Register & Pay button for payment mode -->
+                            <t t-if="event.registration_mode == 'register_pay'">
+                                <button type="submit" class="btn btn-primary" id="btn_register_ticket">
+                                    <i class="fa fa-check"/> Register &amp; Pay
+                                </button>
+                            </t>
+
+                            <!-- Only show Register button for register-only mode -->
+                            <t t-if="event.registration_mode == 'register_only'">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-check"/> Register
+                                </button>
+                            </t>
+                        </t>
+                    </div>
+
+                </div>
+            </form>
+
+        </xpath>
+    </template>
+
+    <!-- Inherit Attendee Modal to Change Button for Register Only -->
+    <template id="modal_attendees_registration_inherit"
+          inherit_id="website_event.registration_attendee_details">
+
+    <xpath expr="//button[@type='submit']" position="replace">
+        <button type="submit" class="btn btn-primary">
+            <t t-if="event.registration_mode == 'register_only'">
+                <i class="fa fa-check"/> Confirm Registration
+            </t>
+            <t t-else="">
+                <i class="fa fa-credit-card"/> Go to Payment
+            </t>
+        </button>
+    </xpath>
+
+</template>
+
+</odoo>
